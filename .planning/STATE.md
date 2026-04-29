@@ -7,8 +7,8 @@ See: .planning/PROJECT.md
 **Current focus:** Phase 1: Foundation & Authentication
 
 ## Session State
-**Stopped at:** Phase 1 context gathered
-**Resume file:** .planning/phases/01-foundation-authentication/01-CONTEXT.md
+**Stopped at:** Phase 1 planned
+**Resume file:** .planning/phases/01-foundation-authentication/01-PLAN.md
 
 ## Milestone Status
 - [ ] Phase 1: Foundation & Authentication
