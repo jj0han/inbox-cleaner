@@ -29,4 +29,7 @@
 - Complex manual rule creation / custom regex filters (violates "zero setup" philosophy)
 
 ## Traceability
-*(To be populated by ROADMAP.md)*
+- **AUTH-01**, **AUTH-02** -> Phase 1
+- **DASH-01**, **DASH-02**, **SAFE-01** -> Phase 2
+- **AUTO-01**, **AUTO-02**, **AUTO-03**, **SAFE-02** -> Phase 3
+- **AUTO-04** -> Phase 4
