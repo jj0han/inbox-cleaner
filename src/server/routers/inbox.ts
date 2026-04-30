@@ -25,8 +25,12 @@ export const inboxRouter = router({
   getSummary: publicProcedure.query(async () => {
     try {
       const gmail = await getGmailClient();
-      const profile = await gmail.users.getProfile({ userId: "me" });
-      return { messagesTotal: profile.data.messagesTotal || 0, error: null };
+      const response = await gmail.users.messages.list({
+        userId: "me",
+        labelIds: ["INBOX"],
+        maxResults: 1,
+      });
+      return { messagesTotal: response.data.resultSizeEstimate || 0, error: null };
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       // Auth errors (401/Unauthorized) → return safe fallback, don't crash dashboard
