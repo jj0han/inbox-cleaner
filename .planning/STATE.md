@@ -7,8 +7,8 @@ See: .planning/PROJECT.md
 **Current focus:** Phase 2: UI Dashboard & Smart Preview
 
 ## Session State
-**Stopped at:** Phase 2 UI-SPEC approved
-**Resume file:** .planning/phases/02-ui-dashboard-smart-preview/02-UI-SPEC.md
+**Stopped at:** Phase 2 plans approved
+**Resume file:** .planning/phases/02-ui-dashboard-smart-preview/02-PLAN.md
 
 ## Milestone Status
 - [x] Phase 1: Foundation & Authentication
