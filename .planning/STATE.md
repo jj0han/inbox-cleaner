@@ -4,8 +4,8 @@
 See: .planning/PROJECT.md (updated 2026-04-30)
 
 **Core value:** Provide immediate relief by cleaning thousands of useless emails with a single click, completely removing the cognitive load of inbox management.
-**Current focus:** v1.1 — Real Preview, Polish & Unsubscribe (Phase 5 is next)
-**Current position:** Defining Phase 5. Requirements and roadmap ready.
+**Current focus:** v1.1 — Real Preview, Polish & Unsubscribe (Phase 5 ready to execute)
+**Current position:** Phase 5 planned (3 PLAN.md files written). Ready to execute.
 
 ## Session State
 **Last session:** 2026-04-30
