@@ -1004,6 +1004,7 @@ export namespace Prisma {
     status: string | null
     createdAt: Date | null
     expiresAt: Date | null
+    filterId: string | null
   }
 
   export type ActionLogMaxAggregateOutputType = {
@@ -1013,6 +1014,7 @@ export namespace Prisma {
     status: string | null
     createdAt: Date | null
     expiresAt: Date | null
+    filterId: string | null
   }
 
   export type ActionLogCountAggregateOutputType = {
@@ -1022,6 +1024,7 @@ export namespace Prisma {
     status: number
     createdAt: number
     expiresAt: number
+    filterId: number
     _all: number
   }
 
@@ -1033,6 +1036,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     expiresAt?: true
+    filterId?: true
   }
 
   export type ActionLogMaxAggregateInputType = {
@@ -1042,6 +1046,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     expiresAt?: true
+    filterId?: true
   }
 
   export type ActionLogCountAggregateInputType = {
@@ -1051,6 +1056,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     expiresAt?: true
+    filterId?: true
     _all?: true
   }
 
@@ -1133,6 +1139,7 @@ export namespace Prisma {
     status: string
     createdAt: Date
     expiresAt: Date
+    filterId: string | null
     _count: ActionLogCountAggregateOutputType | null
     _min: ActionLogMinAggregateOutputType | null
     _max: ActionLogMaxAggregateOutputType | null
@@ -1159,6 +1166,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     expiresAt?: boolean
+    filterId?: boolean
     items?: boolean | ActionLog$itemsArgs<ExtArgs>
     _count?: boolean | ActionLogCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["actionLog"]>
@@ -1170,6 +1178,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     expiresAt?: boolean
+    filterId?: boolean
   }, ExtArgs["result"]["actionLog"]>
 
   export type ActionLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1179,6 +1188,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     expiresAt?: boolean
+    filterId?: boolean
   }, ExtArgs["result"]["actionLog"]>
 
   export type ActionLogSelectScalar = {
@@ -1188,9 +1198,10 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     expiresAt?: boolean
+    filterId?: boolean
   }
 
-  export type ActionLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "actionType" | "status" | "createdAt" | "expiresAt", ExtArgs["result"]["actionLog"]>
+  export type ActionLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "actionType" | "status" | "createdAt" | "expiresAt" | "filterId", ExtArgs["result"]["actionLog"]>
   export type ActionLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | ActionLog$itemsArgs<ExtArgs>
     _count?: boolean | ActionLogCountOutputTypeDefaultArgs<ExtArgs>
@@ -1210,6 +1221,7 @@ export namespace Prisma {
       status: string
       createdAt: Date
       expiresAt: Date
+      filterId: string | null
     }, ExtArgs["result"]["actionLog"]>
     composites: {}
   }
@@ -1640,6 +1652,7 @@ export namespace Prisma {
     readonly status: FieldRef<"ActionLog", 'String'>
     readonly createdAt: FieldRef<"ActionLog", 'DateTime'>
     readonly expiresAt: FieldRef<"ActionLog", 'DateTime'>
+    readonly filterId: FieldRef<"ActionLog", 'String'>
   }
     
 
@@ -3125,7 +3138,8 @@ export namespace Prisma {
     actionType: 'actionType',
     status: 'status',
     createdAt: 'createdAt',
-    expiresAt: 'expiresAt'
+    expiresAt: 'expiresAt',
+    filterId: 'filterId'
   };
 
   export type ActionLogScalarFieldEnum = (typeof ActionLogScalarFieldEnum)[keyof typeof ActionLogScalarFieldEnum]
@@ -3146,6 +3160,14 @@ export namespace Prisma {
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -3187,6 +3209,7 @@ export namespace Prisma {
     status?: StringFilter<"ActionLog"> | string
     createdAt?: DateTimeFilter<"ActionLog"> | Date | string
     expiresAt?: DateTimeFilter<"ActionLog"> | Date | string
+    filterId?: StringNullableFilter<"ActionLog"> | string | null
     items?: ActionItemListRelationFilter
   }
 
@@ -3197,6 +3220,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
+    filterId?: SortOrderInput | SortOrder
     items?: ActionItemOrderByRelationAggregateInput
   }
 
@@ -3210,6 +3234,7 @@ export namespace Prisma {
     status?: StringFilter<"ActionLog"> | string
     createdAt?: DateTimeFilter<"ActionLog"> | Date | string
     expiresAt?: DateTimeFilter<"ActionLog"> | Date | string
+    filterId?: StringNullableFilter<"ActionLog"> | string | null
     items?: ActionItemListRelationFilter
   }, "id">
 
@@ -3220,6 +3245,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
+    filterId?: SortOrderInput | SortOrder
     _count?: ActionLogCountOrderByAggregateInput
     _max?: ActionLogMaxOrderByAggregateInput
     _min?: ActionLogMinOrderByAggregateInput
@@ -3235,6 +3261,7 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"ActionLog"> | string
     createdAt?: DateTimeWithAggregatesFilter<"ActionLog"> | Date | string
     expiresAt?: DateTimeWithAggregatesFilter<"ActionLog"> | Date | string
+    filterId?: StringNullableWithAggregatesFilter<"ActionLog"> | string | null
   }
 
   export type ActionItemWhereInput = {
@@ -3289,6 +3316,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     expiresAt: Date | string
+    filterId?: string | null
     items?: ActionItemCreateNestedManyWithoutActionInput
   }
 
@@ -3299,6 +3327,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     expiresAt: Date | string
+    filterId?: string | null
     items?: ActionItemUncheckedCreateNestedManyWithoutActionInput
   }
 
@@ -3309,6 +3338,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filterId?: NullableStringFieldUpdateOperationsInput | string | null
     items?: ActionItemUpdateManyWithoutActionNestedInput
   }
 
@@ -3319,6 +3349,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filterId?: NullableStringFieldUpdateOperationsInput | string | null
     items?: ActionItemUncheckedUpdateManyWithoutActionNestedInput
   }
 
@@ -3329,6 +3360,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     expiresAt: Date | string
+    filterId?: string | null
   }
 
   export type ActionLogUpdateManyMutationInput = {
@@ -3338,6 +3370,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filterId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ActionLogUncheckedUpdateManyInput = {
@@ -3347,6 +3380,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filterId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ActionItemCreateInput = {
@@ -3415,10 +3449,29 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type ActionItemListRelationFilter = {
     every?: ActionItemWhereInput
     some?: ActionItemWhereInput
     none?: ActionItemWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type ActionItemOrderByRelationAggregateInput = {
@@ -3432,6 +3485,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
+    filterId?: SortOrder
   }
 
   export type ActionLogMaxOrderByAggregateInput = {
@@ -3441,6 +3495,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
+    filterId?: SortOrder
   }
 
   export type ActionLogMinOrderByAggregateInput = {
@@ -3450,6 +3505,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
+    filterId?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -3481,6 +3537,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type ActionLogScalarRelationFilter = {
@@ -3526,6 +3599,10 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type ActionItemUpdateManyWithoutActionNestedInput = {
@@ -3595,6 +3672,20 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -3635,6 +3726,34 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type ActionItemCreateWithoutActionInput = {
@@ -3688,6 +3807,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     expiresAt: Date | string
+    filterId?: string | null
   }
 
   export type ActionLogUncheckedCreateWithoutItemsInput = {
@@ -3697,6 +3817,7 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     expiresAt: Date | string
+    filterId?: string | null
   }
 
   export type ActionLogCreateOrConnectWithoutItemsInput = {
@@ -3722,6 +3843,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filterId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ActionLogUncheckedUpdateWithoutItemsInput = {
@@ -3731,6 +3853,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filterId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ActionItemCreateManyActionInput = {

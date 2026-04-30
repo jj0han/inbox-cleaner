@@ -5,14 +5,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ActionCard } from "./action-card";
 import { PreviewModal } from "./preview-modal";
+import { SuggestionsSection } from "./suggestions-section";
 import { useState } from "react";
 import { useCleanup } from "@/hooks/use-cleanup";
+import { useSuggestion } from "@/hooks/use-suggestion";
 import { useUndo } from "@/lib/undo-context";
 
 export function DashboardContent() {
   const { data, isLoading, error } = trpc.inbox.getSummary.useQuery();
+  const { data: cardCounts, isLoading: isCountsLoading } = trpc.inbox.getCardCounts.useQuery();
+  const {
+    data: suggestions,
+    isLoading: isSuggestionsLoading,
+    refetch: refetchSuggestions,
+  } = trpc.inbox.getSuggestions.useQuery();
+
   const [previewAction, setPreviewAction] = useState<string | null>(null);
   const { cleanup, isProcessing } = useCleanup();
+  const { apply: applySuggestion, isPending: isApplying } = useSuggestion();
   const { activeAction } = useUndo();
 
   return (
@@ -51,11 +61,12 @@ export function DashboardContent() {
         )}
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <ActionCard
           title="Remover Newsletters"
           description="E-mails promocionais, boletins informativos e atualizações de produtos."
           type="NEWSLETTERS"
+          count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.NEWSLETTERS}
           onPreviewClick={() => setPreviewAction("Remover Newsletters")}
           onCleanupClick={() => cleanup("NEWSLETTERS")}
           isCleaning={isProcessing && activeAction?.type === "NEWSLETTERS"}
@@ -66,6 +77,7 @@ export function DashboardContent() {
           title="Limpar Notificações"
           description="Avisos de redes sociais, confirmações de segurança e alertas automáticos."
           type="SOCIAL"
+          count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.SOCIAL}
           onPreviewClick={() => setPreviewAction("Limpar Notificações")}
           onCleanupClick={() => cleanup("SOCIAL")}
           isCleaning={isProcessing && activeAction?.type === "SOCIAL"}
@@ -73,6 +85,14 @@ export function DashboardContent() {
           progress={activeAction?.type === "SOCIAL" ? { current: activeAction.current, total: activeAction.total } : undefined}
         />
       </section>
+
+      <SuggestionsSection
+        suggestions={suggestions ?? []}
+        isLoading={isSuggestionsLoading}
+        isApplying={isApplying}
+        onRefresh={() => refetchSuggestions()}
+        onApply={applySuggestion}
+      />
 
       <PreviewModal
         isOpen={previewAction !== null}

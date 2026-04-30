@@ -13,10 +13,11 @@ datasource db {
 model ActionLog {
   id         String       @id @default(cuid())
   userId     String
-  actionType String // e.g., "ARCHIVE_PROMOS", "ARCHIVE_SOCIAL"
+  actionType String // e.g., "ARCHIVE_PROMOS", "ARCHIVE_SOCIAL", "RULE_APPLY"
   status     String       @default("COMPLETED") // PENDING, COMPLETED, UNDONE, EXPIRED
   createdAt  DateTime     @default(now())
   expiresAt  DateTime
+  filterId   String? // Gmail filter ID — set when a rule is applied, used for undo
   items      ActionItem[]
 
   @@index([userId])
