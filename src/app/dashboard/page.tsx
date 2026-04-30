@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
+import { LogoutButton } from "@/components/dashboard/logout-button";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -15,8 +16,9 @@ export default async function DashboardPage() {
       <div className="w-full max-w-4xl space-y-8">
         <header className="flex items-center justify-between pb-8 border-b border-zinc-200">
           <h1 className="text-2xl font-bold tracking-tight">Inbox Cleaner</h1>
-          <div className="text-sm font-medium text-zinc-500">
+          <div className="flex items-center gap-4 text-sm font-medium text-zinc-500">
             {session.user?.email}
+            <LogoutButton />
           </div>
         </header>
 
