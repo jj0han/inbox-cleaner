@@ -1,0 +1,18 @@
+{
+  "areas_completed": 2,
+  "decisions": [
+    {
+      "area": "Preview Modal Scope",
+      "options_presented": ["Headers only", "Include Snippets", "Full Content on Click"],
+      "selection": "Headers only (Faster/Lighter) - Show only Sender and Subject line",
+      "notes": "Optimizes for speed and API quota."
+    },
+    {
+      "area": "Action Cards Layout",
+      "options_presented": ["Grid of Bold 'Recipe' Cards", "Dense List View", "One Primary 'Magic' Button"],
+      "selection": "Grid of Bold 'Recipe' Cards",
+      "notes": "Emphasizes 1-click simplicity and Notion-like gallery feel."
+    }
+  ],
+  "deferred_ideas": []
+}

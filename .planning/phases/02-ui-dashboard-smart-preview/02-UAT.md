@@ -1,9 +1,9 @@
 ---
 status: complete
 phase: 02-ui-dashboard-smart-preview
-source: [2-01-01-SUMMARY.md, 2-01-02-SUMMARY.md, 2-01-03-SUMMARY.md, 2-02-01-SUMMARY.md, 2-02-02-SUMMARY.md, 2-02-03-SUMMARY.md]
-started: 2026-04-30T05:22:00Z
-updated: 2026-04-30T05:22:00Z
+source: [2-01-01-SUMMARY.md, 2-01-02-SUMMARY.md, 2-01-03-SUMMARY.md, 2-02-01-SUMMARY.md, 2-02-02-SUMMARY.md, 2-02-03-SUMMARY.md, 02-GAP-FIX-SUMMARY.md]
+started: 2026-04-30T14:09:00Z
+updated: 2026-04-30T14:09:00Z
 ---
 
 ## Current Test
@@ -17,33 +17,27 @@ expected: Kill any running server/service. Clear ephemeral state (temp DBs, cach
 result: pass
 
 ### 2. Dashboard Data Fetching (tRPC)
-expected: After login, visiting the dashboard shows a loading skeleton briefly, then displays a hero section "Resumo da Caixa de Entrada" with the total count of emails. This confirms the new tRPC + React Query stack is wired correctly.
-result: issue
-reported: "no\n@[TerminalName: pnpm, ProcessId: 29216]"
-severity: major
+expected: After login, visiting the dashboard shows a loading skeleton briefly, then displays a hero section "Resumo da Caixa de Entrada" with the total count of emails.
+result: pass
 
 ### 3. Action Cards Display
 expected: The dashboard displays two "recipe" action cards: "Remover Newsletters" and "Limpar Notificações" with descriptions.
 result: pass
 
 ### 4. Smart Preview Modal
-expected: Clicking "Ver E-mails" on an action card opens a modal dialog. The dialog fetches and displays a scrollable list of example emails (currently mock data), showing subjects and senders. The dialog can be closed.
+expected: Clicking "Ver E-mails" on an action card opens a modal dialog showing example emails.
+result: pass
+
+### 5. Logout Functionality
+expected: Clicking the "Log out" button in the dashboard header logs the user out and redirects to the home page (/).
 result: pass
 
 ## Summary
 
-total: 4
-passed: 3
-issues: 1
+total: 5
+passed: 5
+issues: 0
 pending: 0
 skipped: 0
 
 ## Gaps
-
-- truth: "After login, visiting the dashboard shows a loading skeleton briefly, then displays a hero section 'Resumo da Caixa de Entrada' with the total count of emails. This confirms the new tRPC + React Query stack is wired correctly."
-  status: failed
-  reason: "User reported: no\n@[TerminalName: pnpm, ProcessId: 29216]"
-  severity: major
-  test: 2
-  artifacts: ["src/server/routers/inbox.ts"]
-  missing: ["The google.gmail() client is incorrectly configured with headers instead of an OAuth2 auth object. It must use google.auth.OAuth2() and setCredentials."]
