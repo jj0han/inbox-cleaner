@@ -22,13 +22,20 @@ Provide immediate relief by cleaning thousands of useless emails with a single c
 - ✓ AI-lite suggested rules ("You never open X → auto-archive?") — v1.0
 - ✓ Live email count badges on action cards — v1.0
 
-### Active (v1.1 candidates)
+## Current Milestone: v1.1 — Real Preview, Polish & Unsubscribe
 
-- [ ] Real Gmail preview in PreviewModal (currently hardcoded mocks)
-- [ ] Rate-limit backoff for `getCardCounts` parallel calls
-- [ ] Error boundary for `SuggestionsSection`
-- [ ] Unsubscribe link detection (actual unsubscribe, not just archive)
-- [ ] Mobile-optimized layout (current: responsive web; future: PWA)
+**Goal:** Make the app production-ready with live email previews, real unsubscribe execution, and API resilience.
+
+**Target features:**
+- Real Gmail data in Preview Modal (PREV-01–03)
+- Unsubscribe link detection & execution (UNSUB-01–03)
+- Rate-limit backoff, error boundaries, graceful degradation (POL-01–03)
+
+### Active (v1.1)
+
+- [ ] **PREV-01–03**: Real email preview (sender, subject, snippet) in PreviewModal per action type
+- [ ] **UNSUB-01–03**: Unsubscribe link detection + one-click unsubscribe from preview
+- [ ] **POL-01–03**: Rate-limit backoff, SuggestionsSection error state, card count degradation
 
 ### Out of Scope
 
@@ -83,4 +90,4 @@ Known limitations: preview modal uses mock data; suggestion engine is pattern-ba
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-30 after v1.0 milestone*
+*Last updated: 2026-04-30 — v1.1 milestone started*
