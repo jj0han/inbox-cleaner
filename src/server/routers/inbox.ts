@@ -12,9 +12,12 @@ export const inboxRouter = router({
     }
 
     try {
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({ access_token: session.accessToken });
+
       const gmail = google.gmail({ 
         version: "v1", 
-        headers: { Authorization: `Bearer ${session.accessToken}` } 
+        auth: oauth2Client 
       });
       
       const profile = await gmail.users.getProfile({ userId: "me" });
