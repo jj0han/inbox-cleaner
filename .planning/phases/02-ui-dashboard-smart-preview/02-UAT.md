@@ -45,5 +45,5 @@ skipped: 0
   reason: "User reported: no\n@[TerminalName: pnpm, ProcessId: 29216]"
   severity: major
   test: 2
-  artifacts: []
-  missing: []
+  artifacts: ["src/server/routers/inbox.ts"]
+  missing: ["The google.gmail() client is incorrectly configured with headers instead of an OAuth2 auth object. It must use google.auth.OAuth2() and setCredentials."]
