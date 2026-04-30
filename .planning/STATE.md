@@ -4,15 +4,14 @@
 See: .planning/PROJECT.md
 
 **Core value:** Provide immediate relief by cleaning thousands of useless emails with a single click, completely removing the cognitive load of inbox management.
-**Current focus:** Phase 2 (UI Dashboard & Smart Preview) completion.
-**Current position:** Phase 2 executed and verified.
-**Last activity:** Implemented Smart Preview Modal and completed Phase 2 execution.
+**Current focus:** Phase 3 (Core Automations & Undo) planning.
+**Current position:** Phase 2 shipped. Phase 3 planned and ready for execution.
 
 ## Session State
 **Last session:** 2026-04-30
-**Stopped at:** Phase 2 shipped to master.
-**Context gathered:** All phase 2 plans executed and verified successfully.
-**Resume file:** .planning/phases/02-ui-dashboard-smart-preview/02-PLAN.md
+**Stopped at:** Phase 3 planned.
+**Context gathered:** Requirements for Undo (immediate + DB persistence) and Batching defined.
+**Resume file:** .planning/phases/03-core-automations-undo/03-PLAN.md
 
 ## Milestone Status
 - [x] Phase 1: Foundation & Authentication
