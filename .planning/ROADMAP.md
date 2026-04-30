@@ -13,9 +13,9 @@
 **Requirements:** DASH-01, DASH-02, SAFE-01
 **UI hint:** yes
 **Success Criteria:**
-- Dashboard displays Hero section with total cleanable emails.
-- Action cards render dynamically based on available automations.
-- Clicking an action card opens a preview modal with 5-10 example emails.
+- [x] Dashboard displays Hero section with total cleanable emails.
+- [x] Action cards render dynamically based on available automations.
+- [x] Clicking an action card opens a preview modal with 5-10 example emails.
 
 ## Phase 3: Core Automations & Undo
 **Goal:** Implement the primary 1-click cleanup actions and the safety undo buffer.
