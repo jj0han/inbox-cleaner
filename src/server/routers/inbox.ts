@@ -38,17 +38,72 @@ export const inboxRouter = router({
       return { messagesTotal: 0, error: "gmail_auth_error" };
     }
   }),
-  getPreview: publicProcedure.query(() => {
-    return {
-      emails: [
-        { id: "1", sender: "marketing@loja.com", subject: "Promoção exclusiva de 50%!" },
-        { id: "2", sender: "newsletter@tecnologia.com", subject: "Resumo semanal de notícias tech" },
-        { id: "3", sender: "ofertas@viagens.com", subject: "Sua próxima viagem está aqui" },
-        { id: "4", sender: "updates@socialmedia.com", subject: "Veja quem visitou seu perfil" },
-        { id: "5", sender: "contato@academia.com", subject: "Não perca seu plano mensal" },
-      ]
-    };
-  }),
+  getPreview: publicProcedure
+    .input(z.object({
+      type: z.enum(["NEWSLETTERS", "PROMOTIONS", "SOCIAL", "SMART_CLEANUP"]),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const gmail = await getGmailClient();
+
+        const PREVIEW_QUERIES: Record<string, string> = {
+          NEWSLETTERS:   "label:INBOX has:list-unsubscribe",
+          PROMOTIONS:    "label:INBOX category:promotions",
+          SOCIAL:        "label:INBOX category:social",
+          SMART_CLEANUP: "label:INBOX (category:promotions OR category:social OR category:updates) older_than:30d",
+        };
+
+        const q = PREVIEW_QUERIES[input.type];
+        const listRes = await gmail.users.messages.list({
+          userId: "me",
+          q,
+          maxResults: 10,
+        });
+
+        const messages = listRes.data.messages || [];
+        if (messages.length === 0) return { emails: [], error: null };
+
+        const details = await Promise.all(
+          messages.map(m =>
+            gmail.users.messages.get({
+              userId: "me",
+              id: m.id!,
+              format: "metadata",
+              metadataHeaders: ["From", "Subject"],
+            })
+          )
+        );
+
+        const emails = details.map(detail => {
+          const headers = detail.data.payload?.headers || [];
+          const from = headers.find(h => h.name === "From")?.value || "";
+          const subject = headers.find(h => h.name === "Subject")?.value || "(sem assunto)";
+          const snippet = detail.data.snippet || "";
+
+          // Extract display name or raw email from "Display Name <email>" or "email@example.com"
+          const nameMatch = from.match(/^"?([^"<]+)"?\s*</);
+          const emailMatch = from.match(/<([^>]+)>/);
+          const sender = nameMatch
+            ? nameMatch[1].trim()
+            : emailMatch
+            ? emailMatch[1]
+            : from;
+
+          return {
+            id: detail.data.id!,
+            sender,
+            subject,
+            snippet: snippet.slice(0, 120),
+          };
+        });
+
+        return { emails, error: null };
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.error("getPreview failed", msg);
+        return { emails: [], error: "gmail_auth_error" };
+      }
+    }),
 
   startCleanupAction: publicProcedure
     .input(z.object({

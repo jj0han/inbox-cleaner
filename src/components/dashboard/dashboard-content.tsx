@@ -11,6 +11,8 @@ import { useCleanup } from "@/hooks/use-cleanup";
 import { useSuggestion } from "@/hooks/use-suggestion";
 import { useUndo } from "@/lib/undo-context";
 
+type ActionType = "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP";
+
 export function DashboardContent() {
   const { data, isLoading, error } = trpc.inbox.getSummary.useQuery();
   const { data: cardCounts, isLoading: isCountsLoading } = trpc.inbox.getCardCounts.useQuery();
@@ -20,7 +22,7 @@ export function DashboardContent() {
     refetch: refetchSuggestions,
   } = trpc.inbox.getSuggestions.useQuery();
 
-  const [previewAction, setPreviewAction] = useState<string | null>(null);
+  const [previewAction, setPreviewAction] = useState<{ type: ActionType; title: string } | null>(null);
   const { cleanup, isProcessing } = useCleanup();
   const { apply: applySuggestion, isPending: isApplying } = useSuggestion();
   const { activeAction } = useUndo();
@@ -67,7 +69,7 @@ export function DashboardContent() {
           description="E-mails promocionais, boletins informativos e atualizações de produtos."
           type="NEWSLETTERS"
           count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.NEWSLETTERS}
-          onPreviewClick={() => setPreviewAction("Remover Newsletters")}
+          onPreviewClick={() => setPreviewAction({ type: "NEWSLETTERS", title: "Remover Newsletters" })}
           onCleanupClick={() => cleanup("NEWSLETTERS")}
           isCleaning={isProcessing && activeAction?.type === "NEWSLETTERS"}
           isDisabled={activeAction !== null || isProcessing}
@@ -78,7 +80,7 @@ export function DashboardContent() {
           description="Avisos de redes sociais, confirmações de segurança e alertas automáticos."
           type="SOCIAL"
           count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.SOCIAL}
-          onPreviewClick={() => setPreviewAction("Limpar Notificações")}
+          onPreviewClick={() => setPreviewAction({ type: "SOCIAL", title: "Limpar Notificações" })}
           onCleanupClick={() => cleanup("SOCIAL")}
           isCleaning={isProcessing && activeAction?.type === "SOCIAL"}
           isDisabled={activeAction !== null || isProcessing}
@@ -96,9 +98,11 @@ export function DashboardContent() {
 
       <PreviewModal
         isOpen={previewAction !== null}
-        title={previewAction || ""}
+        type={previewAction?.type ?? "NEWSLETTERS"}
+        title={previewAction?.title ?? ""}
         onClose={() => setPreviewAction(null)}
       />
     </div>
   );
 }
+
