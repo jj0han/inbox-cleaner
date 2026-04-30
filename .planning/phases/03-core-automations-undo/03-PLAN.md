@@ -4,11 +4,11 @@
 Implement immediate cleanup actions with a 30-second undo window, progress feedback, and database persistence.
 
 ## Wave 1: Database & Schema Infrastructure
-- [ ] Install Prisma dependencies (`npm install prisma @prisma/client`).
-- [ ] Initialize Prisma (`npx prisma init --datasource-provider sqlite`).
-- [ ] Define `ActionLog` model in `prisma/schema.prisma` for undo persistence.
-- [ ] Run `npx prisma migrate dev --name init_undo_logs`.
-- [ ] Extend `InboxRouter` in `src/server/routers/inbox.ts` to include `batchModifyLabels` utility.
+- [x] Install Prisma dependencies (`npm install prisma @prisma/client`).
+- [x] Initialize Prisma (`npx prisma init --datasource-provider sqlite`).
+- [x] Define `ActionLog` model in `prisma/schema.prisma` for undo persistence.
+- [x] Run `npx prisma migrate dev --name init_undo_logs`.
+- [x] Extend `InboxRouter` in `src/server/routers/inbox.ts` to include `batchModifyLabels` utility.
 
 ## Wave 2: Backend Mutations
 - [ ] Implement `startCleanupAction` tRPC mutation:
