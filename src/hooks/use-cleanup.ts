@@ -11,8 +11,12 @@ export function useCleanup() {
 
   const startMutation = trpc.inbox.startCleanupAction.useMutation();
   const executeBatchMutation = trpc.inbox.executeBatch.useMutation();
+  const bulkUnsubscribeMutation = trpc.inbox.bulkUnsubscribe.useMutation();
 
-  const cleanup = async (type: "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP") => {
+  const cleanup = async (
+    type: "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP",
+    shouldUnsubscribe = false
+  ) => {
     setIsProcessing(true);
     try {
       const result = await startMutation.mutateAsync({ type });
@@ -29,6 +33,12 @@ export function useCleanup() {
       const batchSize = 100;
       for (let i = 0; i < messageIds.length; i += batchSize) {
         const batch = messageIds.slice(i, i + batchSize);
+
+        if (shouldUnsubscribe && type === "NEWSLETTERS") {
+          // Attempt unsubscribe before archiving
+          await bulkUnsubscribeMutation.mutateAsync({ messageIds: batch });
+        }
+
         await executeBatchMutation.mutateAsync({
           actionId,
           messageIds: batch,
@@ -38,6 +48,7 @@ export function useCleanup() {
 
       // Refresh data
       utils.inbox.getSummary.invalidate();
+      utils.inbox.getCardCounts.invalidate();
     } catch (e) {
       console.error("Cleanup failed", e);
     } finally {

@@ -13,6 +13,8 @@ interface ActionCardProps {
   isCleaning?: boolean;
   isDisabled?: boolean;
   progress?: { current: number; total: number };
+  footerExtra?: React.ReactNode;
+  cleanupText?: string;
 }
 
 export function ActionCard({ 
@@ -24,7 +26,9 @@ export function ActionCard({
   onCleanupClick,
   isCleaning,
   isDisabled,
-  progress 
+  progress,
+  footerExtra,
+  cleanupText = "Limpar Agora"
 }: ActionCardProps) {
   return (
     <Card className="relative overflow-hidden flex flex-col border-zinc-200 shadow-sm transition-shadow hover:shadow-md h-full">
@@ -69,13 +73,20 @@ export function ActionCard({
           {description}
         </CardDescription>
       </CardHeader>
-      <CardFooter className="pt-4 border-t border-zinc-100 flex gap-2">
-        <Button variant="outline" onClick={onPreviewClick} className="flex-1 font-semibold">
-          Ver E-mails
-        </Button>
-        <Button variant="default" onClick={onCleanupClick} disabled={isCleaning || isDisabled} className="flex-1 font-semibold bg-blue-600 hover:bg-blue-700">
-          Limpar Agora
-        </Button>
+      <CardFooter className="flex-col pt-4 border-t border-zinc-100 items-stretch gap-4">
+        {footerExtra && (
+          <div className="w-full">
+            {footerExtra}
+          </div>
+        )}
+        <div className="flex gap-2 w-full">
+          <Button variant="outline" onClick={onPreviewClick} className="flex-1 font-semibold">
+            Ver E-mails
+          </Button>
+          <Button variant="default" onClick={onCleanupClick} disabled={isCleaning || isDisabled} className="flex-1 font-semibold bg-blue-600 hover:bg-blue-700">
+            {cleanupText}
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

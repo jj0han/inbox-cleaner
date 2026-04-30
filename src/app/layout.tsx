@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 import { UndoToast } from "@/components/dashboard/undo-toast";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Inbox Cleaner",
@@ -36,6 +37,7 @@ export default function RootLayout({
           <Providers>
             {children}
             <UndoToast />
+            <Toaster position="top-center" />
           </Providers>
         </TRPCProvider>
       </body>

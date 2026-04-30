@@ -4,6 +4,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useState } from "react";
 
 type ActionType = "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP";
 
@@ -15,10 +18,33 @@ interface PreviewModalProps {
 }
 
 export function PreviewModal({ isOpen, onClose, title, type }: PreviewModalProps) {
-  const { data, isLoading, error } = trpc.inbox.getPreview.useQuery(
+  const { data, isLoading, error, refetch } = trpc.inbox.getPreview.useQuery(
     { type },
     { enabled: isOpen }
   );
+
+  const [processingId, setProcessingId] = useState<string | null>(null);
+
+  const unsubscribeMutation = trpc.inbox.unsubscribe.useMutation({
+    onSuccess: (res) => {
+      if (res.success) {
+        toast.success("Descadastramento solicitado com sucesso!");
+        refetch();
+      } else {
+        toast.error("Não foi possível realizar o descadastramento.");
+      }
+      setProcessingId(null);
+    },
+    onError: () => {
+      toast.error("Erro ao processar o descadastramento.");
+      setProcessingId(null);
+    },
+  });
+
+  const handleUnsubscribe = (id: string) => {
+    setProcessingId(id);
+    unsubscribeMutation.mutate({ messageId: id });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -50,7 +76,7 @@ export function PreviewModal({ isOpen, onClose, title, type }: PreviewModalProps
               Não foi possível conectar ao Gmail. Verifique as permissões.
             </div>
           ) : (
-            <ScrollArea className="h-[320px] w-full rounded-md border border-zinc-200 p-4">
+            <ScrollArea className="h-[380px] w-full rounded-md border border-zinc-200 p-4">
               {data?.emails.length === 0 ? (
                 <div className="text-sm text-zinc-500 text-center py-8">Nenhum e-mail encontrado.</div>
               ) : (
@@ -58,12 +84,33 @@ export function PreviewModal({ isOpen, onClose, title, type }: PreviewModalProps
                   {data?.emails.map((email) => (
                     <div
                       key={email.id}
-                      className="p-3 bg-zinc-50 rounded-lg border border-zinc-100 hover:bg-zinc-100 transition-colors"
+                      className="group relative p-3 bg-zinc-50 rounded-lg border border-zinc-100 hover:bg-zinc-100 transition-colors"
                     >
-                      <p className="text-sm font-semibold text-zinc-900 truncate">{email.sender}</p>
-                      <p className="text-sm text-zinc-600 truncate">{email.subject}</p>
+                      <div className="flex justify-between items-start mb-0.5">
+                        <p className="text-sm font-semibold text-zinc-900 line-clamp-1 flex-1">{email.sender}</p>
+                        {email.unsubscribeUrl && (
+                          <span className="text-[10px] font-bold text-blue-600 bg-blue-100/50 px-1.5 py-0.5 rounded-full ml-2 whitespace-nowrap">
+                            Descadastrar disponível
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-zinc-600 line-clamp-1 pr-20">{email.subject}</p>
                       {email.snippet && (
-                        <p className="text-xs text-zinc-400 mt-0.5 truncate">{email.snippet}</p>
+                        <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1 pr-24">{email.snippet}</p>
+                      )}
+
+                      {email.unsubscribeUrl && (
+                        <div className="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button 
+                            size="sm" 
+                            variant="secondary" 
+                            className="h-7 text-[11px] font-bold shadow-sm"
+                            onClick={() => handleUnsubscribe(email.id)}
+                            disabled={processingId === email.id}
+                          >
+                            {processingId === email.id ? "Aguarde..." : "Descadastrar"}
+                          </Button>
+                        </div>
                       )}
                     </div>
                   ))}

@@ -69,7 +69,7 @@ export const inboxRouter = router({
               userId: "me",
               id: m.id!,
               format: "metadata",
-              metadataHeaders: ["From", "Subject"],
+              metadataHeaders: ["From", "Subject", "List-Unsubscribe"],
             })
           )
         );
@@ -78,9 +78,16 @@ export const inboxRouter = router({
           const headers = detail.data.payload?.headers || [];
           const from = headers.find(h => h.name === "From")?.value || "";
           const subject = headers.find(h => h.name === "Subject")?.value || "(sem assunto)";
+          const unsubHeader = headers.find(h => h.name === "List-Unsubscribe")?.value || "";
           const snippet = detail.data.snippet || "";
 
-          // Extract display name or raw email from "Display Name <email>" or "email@example.com"
+          // Parse List-Unsubscribe header (e.g., "<mailto:unsub@...>, <https://...>")
+          const unsubLinks = unsubHeader.match(/<([^>]+)>/g)?.map(l => l.slice(1, -1)) || [];
+          const unsubscribeUrl = unsubLinks.find(l => l.startsWith("https://")) || 
+                                 unsubLinks.find(l => l.startsWith("mailto:")) || 
+                                 null;
+
+          // Extract display name or raw email
           const nameMatch = from.match(/^"?([^"<]+)"?\s*</);
           const emailMatch = from.match(/<([^>]+)>/);
           const sender = nameMatch
@@ -94,6 +101,7 @@ export const inboxRouter = router({
             sender,
             subject,
             snippet: snippet.slice(0, 120),
+            unsubscribeUrl,
           };
         });
 
@@ -389,6 +397,91 @@ export const inboxRouter = router({
         messageIds,
         filterId,
       };
+    }),
+
+  unsubscribe: publicProcedure
+    .input(z.object({ messageId: z.string() }))
+    .mutation(async ({ input }) => {
+      const gmail = await getGmailClient();
+      
+      const detail = await gmail.users.messages.get({
+        userId: "me",
+        id: input.messageId,
+        format: "metadata",
+        metadataHeaders: ["List-Unsubscribe"],
+      });
+      
+      const unsubHeader = (detail.data.payload?.headers || []).find(h => h.name === "List-Unsubscribe")?.value || "";
+      const unsubLinks = unsubHeader.match(/<([^>]+)>/g)?.map(l => l.slice(1, -1)) || [];
+      const link = unsubLinks.find(l => l.startsWith("https://")) || unsubLinks.find(l => l.startsWith("mailto:")) || null;
+      
+      if (!link) return { success: false, error: "No unsubscribe link found" };
+      
+      try {
+        if (link.startsWith("https://")) {
+          await fetch(link, { method: "GET" });
+        } else if (link.startsWith("mailto:")) {
+          const target = link.replace("mailto:", "");
+          const [email, query] = target.split("?");
+          const subject = query?.match(/subject=([^&]+)/)?.[1] || "Unsubscribe";
+          
+          const raw = Buffer.from(
+            `To: ${email}\r\nSubject: ${decodeURIComponent(subject)}\r\n\r\nUnsubscribe`
+          ).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+          
+          await gmail.users.messages.send({
+            userId: "me",
+            requestBody: { raw }
+          });
+        }
+        return { success: true };
+      } catch (e) {
+        console.error("Unsubscribe execution failed", e);
+        return { success: false, error: "Execution failed" };
+      }
+    }),
+
+  bulkUnsubscribe: publicProcedure
+    .input(z.object({ messageIds: z.array(z.string()) }))
+    .mutation(async ({ input }) => {
+      const gmail = await getGmailClient();
+      const results = { success: 0, failed: 0 };
+      
+      // Process in small serial chunks to avoid rate limiting
+      for (const id of input.messageIds) {
+        try {
+          const detail = await gmail.users.messages.get({
+            userId: "me",
+            id,
+            format: "metadata",
+            metadataHeaders: ["List-Unsubscribe"],
+          });
+          
+          const unsubHeader = (detail.data.payload?.headers || []).find(h => h.name === "List-Unsubscribe")?.value || "";
+          const unsubLinks = unsubHeader.match(/<([^>]+)>/g)?.map(l => l.slice(1, -1)) || [];
+          const link = unsubLinks.find(l => l.startsWith("https://")) || unsubLinks.find(l => l.startsWith("mailto:")) || null;
+          
+          if (link) {
+            if (link.startsWith("https://")) {
+              await fetch(link, { method: "GET" });
+            } else if (link.startsWith("mailto:")) {
+              const target = link.replace("mailto:", "");
+              const [email, query] = target.split("?");
+              const subject = query?.match(/subject=([^&]+)/)?.[1] || "Unsubscribe";
+              const raw = Buffer.from(`To: ${email}\r\nSubject: ${decodeURIComponent(subject)}\r\n\r\nUnsubscribe`).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+              await gmail.users.messages.send({ userId: "me", requestBody: { raw } });
+            }
+            results.success++;
+          } else {
+            results.failed++;
+          }
+        } catch (e) {
+          console.error(`Bulk unsubscribe failed for ${id}`, e);
+          results.failed++;
+        }
+      }
+      
+      return results;
     }),
 });
 

@@ -10,6 +10,8 @@ import { useState } from "react";
 import { useCleanup } from "@/hooks/use-cleanup";
 import { useSuggestion } from "@/hooks/use-suggestion";
 import { useUndo } from "@/lib/undo-context";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 type ActionType = "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP";
 
@@ -23,6 +25,7 @@ export function DashboardContent() {
   } = trpc.inbox.getSuggestions.useQuery();
 
   const [previewAction, setPreviewAction] = useState<{ type: ActionType; title: string } | null>(null);
+  const [unsubscribeEnabled, setUnsubscribeEnabled] = useState(false);
   const { cleanup, isProcessing } = useCleanup();
   const { apply: applySuggestion, isPending: isApplying } = useSuggestion();
   const { activeAction } = useUndo();
@@ -70,10 +73,24 @@ export function DashboardContent() {
           type="NEWSLETTERS"
           count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.NEWSLETTERS}
           onPreviewClick={() => setPreviewAction({ type: "NEWSLETTERS", title: "Remover Newsletters" })}
-          onCleanupClick={() => cleanup("NEWSLETTERS")}
+          onCleanupClick={() => cleanup("NEWSLETTERS", unsubscribeEnabled)}
           isCleaning={isProcessing && activeAction?.type === "NEWSLETTERS"}
           isDisabled={activeAction !== null || isProcessing}
           progress={activeAction?.type === "NEWSLETTERS" ? { current: activeAction.current, total: activeAction.total } : undefined}
+          cleanupText={unsubscribeEnabled ? "Limpar e Descadastrar" : "Limpar Agora"}
+          footerExtra={
+            <div className="flex items-center space-x-2 bg-blue-50/50 p-3 rounded-xl border border-blue-100/50 transition-colors">
+              <Switch 
+                id="unsub-toggle" 
+                checked={unsubscribeEnabled}
+                onCheckedChange={setUnsubscribeEnabled}
+                className="data-[state=checked]:bg-blue-600"
+              />
+              <Label htmlFor="unsub-toggle" className="text-xs font-bold text-blue-700 cursor-pointer">
+                Descadastrar e arquivar (Unsubscribe)
+              </Label>
+            </div>
+          }
         />
         <ActionCard
           title="Limpar Notificações"
