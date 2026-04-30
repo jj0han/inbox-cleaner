@@ -144,6 +144,19 @@ export const inboxRouter = router({
         },
       });
 
+      // For RULE_APPLY actions: also delete the Gmail filter so future emails are no longer skipped
+      if (action.filterId) {
+        try {
+          await gmail.users.settings.filters.delete({
+            userId: "me",
+            id: action.filterId,
+          });
+        } catch (e) {
+          // Log but don't fail undo — filter may already be deleted
+          console.error("Failed to delete Gmail filter during undo", e);
+        }
+      }
+
       await db.actionLog.update({
         where: { id: input.actionId },
         data: { status: "UNDONE" },
@@ -151,4 +164,162 @@ export const inboxRouter = router({
 
       return { success: true };
     }),
+
+  // Plan 1.2: Returns estimated message counts per action card type (no DB writes)
+  getCardCounts: publicProcedure.query(async () => {
+    try {
+      const gmail = await getGmailClient();
+      const queries: Record<string, string> = {
+        NEWSLETTERS: "label:INBOX has:list-unsubscribe",
+        PROMOTIONS: "label:INBOX category:promotions",
+        SOCIAL: "label:INBOX category:social",
+        SMART_CLEANUP: "label:INBOX (category:promotions OR category:social OR category:updates) older_than:30d",
+      };
+      const counts = await Promise.all(
+        Object.entries(queries).map(async ([type, q]) => {
+          const res = await gmail.users.messages.list({ userId: "me", q, maxResults: 1 });
+          return [type, res.data.resultSizeEstimate || 0] as [string, number];
+        })
+      );
+      return Object.fromEntries(counts) as Record<string, number>;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("getCardCounts failed", msg);
+      return { NEWSLETTERS: 0, PROMOTIONS: 0, SOCIAL: 0, SMART_CLEANUP: 0, error: "gmail_auth_error" };
+    }
+  }),
+
+  // Plan 1.3: Analyse inbox for senders with ≥3 unread emails older than 14 days
+  getSuggestions: publicProcedure.query(async () => {
+    try {
+      const gmail = await getGmailClient();
+      const listRes = await gmail.users.messages.list({
+        userId: "me",
+        q: "is:unread older_than:14d label:INBOX",
+        maxResults: 100,
+      });
+
+      const messages = listRes.data.messages || [];
+      if (messages.length === 0) return [];
+
+      // Fetch metadata in parallel chunks of 10
+      const chunks: gmail_v1.Schema$Message[][] = [];
+      for (let i = 0; i < messages.length; i += 10) {
+        chunks.push(messages.slice(i, i + 10));
+      }
+
+      const senderMap = new Map<string, { count: number; oldestDate: string }>();
+
+      for (const chunk of chunks) {
+        const details = await Promise.all(
+          chunk.map(m =>
+            gmail.users.messages.get({
+              userId: "me",
+              id: m.id!,
+              format: "metadata",
+              metadataHeaders: ["From", "Date"],
+            })
+          )
+        );
+
+        for (const detail of details) {
+          const headers = detail.data.payload?.headers || [];
+          const fromHeader = headers.find(h => h.name === "From")?.value || "";
+          const dateHeader = headers.find(h => h.name === "Date")?.value || "";
+
+          // Extract email address from "Display Name <email@example.com>" or "email@example.com"
+          const emailMatch = fromHeader.match(/<([^>]+)>/) || fromHeader.match(/([^\s]+@[^\s]+)/);
+          const email = emailMatch ? emailMatch[1].toLowerCase() : fromHeader.toLowerCase();
+
+          if (!email || !email.includes("@")) continue;
+
+          const existing = senderMap.get(email);
+          if (!existing) {
+            senderMap.set(email, { count: 1, oldestDate: dateHeader });
+          } else {
+            existing.count++;
+            // Keep oldest date
+            if (dateHeader && new Date(dateHeader) < new Date(existing.oldestDate)) {
+              existing.oldestDate = dateHeader;
+            }
+          }
+        }
+      }
+
+      // Filter ≥3 messages, sort descending, return top 3
+      const suggestions = Array.from(senderMap.entries())
+        .filter(([, v]) => v.count >= 3)
+        .sort((a, b) => b[1].count - a[1].count)
+        .slice(0, 3)
+        .map(([email, v]) => ({ email, count: v.count, oldestDate: v.oldestDate }));
+
+      return suggestions;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("getSuggestions failed", msg);
+      return [];
+    }
+  }),
+
+  // Plan 1.4: Archive existing inbox emails from sender + create Gmail filter for future emails
+  applySuggestion: publicProcedure
+    .input(z.object({ senderEmail: z.string().email() }))
+    .mutation(async ({ input }) => {
+      const gmail = await getGmailClient();
+      const session = await getServerSession(authOptions);
+      const userId = session!.user!.email!;
+
+      // 1. Find all inbox messages from this sender
+      const listRes = await gmail.users.messages.list({
+        userId: "me",
+        q: `from:${input.senderEmail} label:INBOX`,
+        maxResults: 500,
+      });
+
+      const messageIds = (listRes.data.messages || []).map(m => m.id as string);
+
+      // 2. Archive existing messages if any
+      if (messageIds.length > 0) {
+        await gmail.users.messages.batchModify({
+          userId: "me",
+          requestBody: {
+            ids: messageIds,
+            removeLabelIds: ["INBOX"],
+          },
+        });
+      }
+
+      // 3. Create Gmail filter so future emails from this sender skip inbox
+      const filterRes = await gmail.users.settings.filters.create({
+        userId: "me",
+        requestBody: {
+          criteria: { from: input.senderEmail },
+          action: { removeLabelIds: ["INBOX"] },
+        },
+      });
+
+      const filterId = filterRes.data.id!;
+
+      // 4. Log the action for undo support
+      const expiresAt = new Date(Date.now() + 30 * 1000); // 30s undo window
+      const action = await db.actionLog.create({
+        data: {
+          userId,
+          actionType: "RULE_APPLY",
+          expiresAt,
+          filterId,
+          items: {
+            create: messageIds.map(id => ({ messageId: id })),
+          },
+        },
+      });
+
+      return {
+        actionId: action.id,
+        total: messageIds.length,
+        messageIds,
+        filterId,
+      };
+    }),
 });
+
