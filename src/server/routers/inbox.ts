@@ -42,5 +42,103 @@ export const inboxRouter = router({
         { id: "5", sender: "contato@academia.com", subject: "Não perca seu plano mensal" },
       ]
     };
-  })
+  }),
+
+  startCleanupAction: publicProcedure
+    .input(z.object({
+      type: z.enum(["NEWSLETTERS", "PROMOTIONS", "SOCIAL", "SMART_CLEANUP"]),
+    }))
+    .mutation(async ({ input }) => {
+      const gmail = await getGmailClient();
+      const session = await getServerSession(authOptions);
+      const userId = session!.user!.email!; // Guaranteed by auth check
+
+      let query = "label:INBOX ";
+      if (input.type === "NEWSLETTERS") query += "has:list-unsubscribe";
+      else if (input.type === "PROMOTIONS") query += "category:promotions";
+      else if (input.type === "SOCIAL") query += "category:social";
+      else if (input.type === "SMART_CLEANUP") query += "(category:promotions OR category:social OR category:updates) older_than:30d";
+
+      const response = await gmail.users.messages.list({
+        userId: "me",
+        q: query,
+        maxResults: 500, // Limit for phase 3 stability
+      });
+
+      const messageIds = (response.data.messages || []).map(m => m.id as string);
+
+      if (messageIds.length === 0) {
+        return { actionId: null, total: 0 };
+      }
+
+      const expiresAt = new Date(Date.now() + 30 * 1000); // 30 seconds
+
+      const action = await db.actionLog.create({
+        data: {
+          userId,
+          actionType: input.type,
+          expiresAt,
+          items: {
+            create: messageIds.map(id => ({ messageId: id })),
+          },
+        },
+      });
+
+      return { actionId: action.id, total: messageIds.length };
+    }),
+
+  executeBatch: publicProcedure
+    .input(z.object({
+      actionId: z.string(),
+      messageIds: z.array(z.string()),
+    }))
+    .mutation(async ({ input }) => {
+      const gmail = await getGmailClient();
+      
+      // Batch modify to remove INBOX label (archiving)
+      await gmail.users.messages.batchModify({
+        userId: "me",
+        requestBody: {
+          ids: input.messageIds,
+          removeLabelIds: ["INBOX"],
+        },
+      });
+
+      return { success: true };
+    }),
+
+  undoAction: publicProcedure
+    .input(z.object({
+      actionId: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const gmail = await getGmailClient();
+      
+      const action = await db.actionLog.findUnique({
+        where: { id: input.actionId },
+        include: { items: true },
+      });
+
+      if (!action || action.status === "UNDONE") {
+        throw new Error("Action not found or already undone");
+      }
+
+      const messageIds = action.items.map(i => i.messageId);
+
+      // Batch modify to add INBOX label back
+      await gmail.users.messages.batchModify({
+        userId: "me",
+        requestBody: {
+          ids: messageIds,
+          addLabelIds: ["INBOX"],
+        },
+      });
+
+      await db.actionLog.update({
+        where: { id: input.actionId },
+        data: { status: "UNDONE" },
+      });
+
+      return { success: true };
+    }),
 });

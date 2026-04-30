@@ -11,15 +11,15 @@ Implement immediate cleanup actions with a 30-second undo window, progress feedb
 - [x] Extend `InboxRouter` in `src/server/routers/inbox.ts` to include `batchModifyLabels` utility.
 
 ## Wave 2: Backend Mutations
-- [ ] Implement `startCleanupAction` tRPC mutation:
+- [x] Implement `startCleanupAction` tRPC mutation:
   - Creates `ActionLog` entry.
   - Queries Gmail messages based on action type.
   - Returns target IDs and `actionId`.
-- [ ] Implement `executeBatch` tRPC mutation:
+- [x] Implement `executeBatch` tRPC mutation:
   - Takes `actionId` and a subset of `messageIds`.
   - Performs `batchModify` to archive emails.
   - Updates `ActionLog` with progress.
-- [ ] Implement `undoAction` tRPC mutation:
+- [x] Implement `undoAction` tRPC mutation:
   - Reverses label changes for IDs in `ActionLog`.
 
 ## Wave 3: UI Components
