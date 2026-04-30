@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 interface ActionCardProps {
   title: string;
   description: string;
-  type: "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL";
+  type: "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP";
+  count?: number; // undefined = loading, 0 = no emails, N = N emails
   onPreviewClick: () => void;
   onCleanupClick: () => void;
   isCleaning?: boolean;
@@ -18,6 +19,7 @@ export function ActionCard({
   title, 
   description, 
   type,
+  count,
   onPreviewClick, 
   onCleanupClick,
   isCleaning,
@@ -26,6 +28,22 @@ export function ActionCard({
 }: ActionCardProps) {
   return (
     <Card className="relative overflow-hidden flex flex-col border-zinc-200 shadow-sm transition-shadow hover:shadow-md h-full">
+      {/* Count badge — top-right corner */}
+      <div className="absolute top-3 right-3 z-20">
+        {count === undefined ? (
+          // Loading skeleton
+          <span className="inline-block h-5 w-16 rounded-full bg-zinc-200 animate-pulse" />
+        ) : count > 0 ? (
+          <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
+            {count.toLocaleString()} emails
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-full bg-zinc-50 px-2.5 py-0.5 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-200">
+            0 emails
+          </span>
+        )}
+      </div>
+
       {isCleaning && (
         <div className="absolute inset-0 z-10 bg-white/60 dark:bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
           <p className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Limpando...</p>
@@ -45,7 +63,7 @@ export function ActionCard({
         </div>
       )}
 
-      <CardHeader className="flex-1 pb-4">
+      <CardHeader className="flex-1 pb-4 pr-20">
         <CardTitle className="text-xl font-bold tracking-tight text-zinc-900">{title}</CardTitle>
         <CardDescription className="text-sm font-medium text-zinc-500 mt-2">
           {description}
