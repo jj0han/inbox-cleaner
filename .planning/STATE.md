@@ -4,17 +4,17 @@
 See: .planning/PROJECT.md
 
 **Core value:** Provide immediate relief by cleaning thousands of useless emails with a single click, completely removing the cognitive load of inbox management.
-**Current focus:** Phase 3 (Core Automations & Undo) planning.
-**Current position:** Phase 2 shipped. Phase 3 planned and ready for execution.
+**Current focus:** Phase 4 (Smart Rules & Polish) — ready to plan.
+**Current position:** Phase 3 complete and UAT verified. Phase 4 is next.
 
 ## Session State
 **Last session:** 2026-04-30
-**Stopped at:** Phase 3 Wave 2 complete. Backend mutations implemented.
-**Context gathered:** Requirements for Undo (immediate + DB persistence) and Batching defined. Plan verified with Prisma initialization.
-**Resume file:** .planning/phases/03-core-automations-undo/03-PLAN.md
+**Stopped at:** Phase 3 UAT complete. 5/6 tests passed, 1 issue found and fixed inline (progress overlay + React setState-in-render bug).
+**Context gathered:** Phase 3 fully verified. Prisma adapter working, batch mutations and undo flow confirmed end-to-end.
+**Resume file:** .planning/ROADMAP.md
 
 ## Milestone Status
 - [x] Phase 1: Foundation & Authentication
 - [x] Phase 2: UI Dashboard & Smart Preview
-- [ ] Phase 3: Core Automations & Undo
+- [x] Phase 3: Core Automations & Undo
 - [ ] Phase 4: Smart Rules & Polish

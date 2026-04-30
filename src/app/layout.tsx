@@ -14,6 +14,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { UndoToast } from "@/components/dashboard/undo-toast";
+
 export const metadata: Metadata = {
   title: "Inbox Cleaner",
   description: "Limpe sua caixa de entrada com um clique",
@@ -31,7 +33,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <TRPCProvider>
-          <Providers>{children}</Providers>
+          <Providers>
+            {children}
+            <UndoToast />
+          </Providers>
         </TRPCProvider>
       </body>
     </html>

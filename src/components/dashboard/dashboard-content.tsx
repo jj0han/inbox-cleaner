@@ -2,19 +2,24 @@
 
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { ActionCard } from "./action-card";
 import { PreviewModal } from "./preview-modal";
 import { useState } from "react";
+import { useCleanup } from "@/hooks/use-cleanup";
+import { useUndo } from "@/lib/undo-context";
 
 export function DashboardContent() {
   const { data, isLoading, error } = trpc.inbox.getSummary.useQuery();
   const [previewAction, setPreviewAction] = useState<string | null>(null);
+  const { cleanup, isProcessing } = useCleanup();
+  const { activeAction } = useUndo();
 
   return (
     <div className="w-full max-w-4xl space-y-8">
       <section className="bg-white p-8 rounded-2xl shadow-sm border border-zinc-100">
         <h2 className="text-lg font-semibold mb-4 text-zinc-700">Resumo da Caixa de Entrada</h2>
-        
+
         {error ? (
           <div className="p-4 bg-red-50 text-red-600 rounded-lg text-sm font-medium">
             Não foi possível carregar os dados. Verifique as permissões.
@@ -30,6 +35,18 @@ export function DashboardContent() {
             <span className="text-6xl font-black text-zinc-900 tracking-tighter">
               {new Intl.NumberFormat('pt-BR').format(data?.messagesTotal || 0)}
             </span>
+            <div className="mt-8 flex flex-col items-center gap-4">
+              <Button
+                onClick={() => cleanup("SMART_CLEANUP")}
+                disabled={activeAction !== null}
+                className="h-14 px-10 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Limpeza Inteligente
+              </Button>
+              <p className="text-xs font-medium text-zinc-400">
+                Arquiva e-mails promocionais e sociais com mais de 30 dias
+              </p>
+            </div>
           </div>
         )}
       </section>
@@ -38,19 +55,29 @@ export function DashboardContent() {
         <ActionCard
           title="Remover Newsletters"
           description="E-mails promocionais, boletins informativos e atualizações de produtos."
+          type="NEWSLETTERS"
           onPreviewClick={() => setPreviewAction("Remover Newsletters")}
+          onCleanupClick={() => cleanup("NEWSLETTERS")}
+          isCleaning={isProcessing && activeAction?.type === "NEWSLETTERS"}
+          isDisabled={activeAction !== null || isProcessing}
+          progress={activeAction?.type === "NEWSLETTERS" ? { current: activeAction.current, total: activeAction.total } : undefined}
         />
         <ActionCard
           title="Limpar Notificações"
           description="Avisos de redes sociais, confirmações de segurança e alertas automáticos."
+          type="SOCIAL"
           onPreviewClick={() => setPreviewAction("Limpar Notificações")}
+          onCleanupClick={() => cleanup("SOCIAL")}
+          isCleaning={isProcessing && activeAction?.type === "SOCIAL"}
+          isDisabled={activeAction !== null || isProcessing}
+          progress={activeAction?.type === "SOCIAL" ? { current: activeAction.current, total: activeAction.total } : undefined}
         />
       </section>
 
-      <PreviewModal 
-        isOpen={previewAction !== null} 
-        title={previewAction || ""} 
-        onClose={() => setPreviewAction(null)} 
+      <PreviewModal
+        isOpen={previewAction !== null}
+        title={previewAction || ""}
+        onClose={() => setPreviewAction(null)}
       />
     </div>
   );

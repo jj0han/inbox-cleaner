@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model ActionLog {
+  id         String       @id @default(cuid())
+  userId     String
+  actionType String // e.g., "ARCHIVE_PROMOS", "ARCHIVE_SOCIAL"
+  status     String       @default("COMPLETED") // PENDING, COMPLETED, UNDONE, EXPIRED
+  createdAt  DateTime     @default(now())
+  expiresAt  DateTime
+  items      ActionItem[]
+
+  @@index([userId])
+}
+
+model ActionItem {
+  id        String    @id @default(cuid())
+  actionId  String
+  messageId String
+  action    ActionLog @relation(fields: [actionId], references: [id], onDelete: Cascade)
+
+  @@index([actionId])
+}

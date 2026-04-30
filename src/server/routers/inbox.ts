@@ -26,10 +26,12 @@ export const inboxRouter = router({
     try {
       const gmail = await getGmailClient();
       const profile = await gmail.users.getProfile({ userId: "me" });
-      return { messagesTotal: profile.data.messagesTotal || 0 };
-    } catch (e) {
-      console.error("Failed to fetch from Gmail API", e);
-      throw new Error("Failed to fetch from Gmail API");
+      return { messagesTotal: profile.data.messagesTotal || 0, error: null };
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      // Auth errors (401/Unauthorized) → return safe fallback, don't crash dashboard
+      console.error("Failed to fetch from Gmail API", msg);
+      return { messagesTotal: 0, error: "gmail_auth_error" };
     }
   }),
   getPreview: publicProcedure.query(() => {
@@ -84,7 +86,11 @@ export const inboxRouter = router({
         },
       });
 
-      return { actionId: action.id, total: messageIds.length };
+      return { 
+        actionId: action.id, 
+        total: messageIds.length,
+        messageIds 
+      };
     }),
 
   executeBatch: publicProcedure

@@ -23,18 +23,18 @@ Implement immediate cleanup actions with a 30-second undo window, progress feedb
   - Reverses label changes for IDs in `ActionLog`.
 
 ## Wave 3: UI Components
-- [ ] Create `UndoToast` component:
+- [x] Create `UndoToast` component:
   - 30s countdown with shrinking progress bar.
   - "Undo" button linked to `undoAction` mutation.
   - Pause timer on hover.
-- [ ] Create `ActionProgress` indicator:
+- [x] Create `ActionProgress` indicator:
   - Live counter overlay for Action Cards.
   - Integration with React Query state to track current/total.
 
 ## Wave 4: Integration & Polish
-- [ ] Connect Action Cards ("Remover Newsletters", "Limpar Notificações") to the new batch mutations.
-- [ ] Implement "Limpeza Inteligente" in the Hero section.
-- [ ] Ensure cache invalidation: Total inbox count should refresh after cleanup or undo.
+- [x] Connect Action Cards ("Remover Newsletters", "Limpar Notificações") to the new batch mutations.
+- [x] Implement "Limpeza Inteligente" in the Hero section.
+- [x] Ensure cache invalidation: Total inbox count should refresh after cleanup or undo.
 
 ## Verification Plan
 - **Automated:** Unit tests for batching logic and undo expiration.
