@@ -29,5 +29,9 @@
 **Goal:** Add AI-lite suggestions and finalize the application experience.
 **Requirements:** AUTO-04
 **Success Criteria:**
-- Application suggests auto-archive rules based on unread patterns.
-- User can apply these rules with a single click.
+- [x] Application suggests auto-archive rules based on unread patterns.
+- [x] User can apply these rules with a single click.
+- [x] Undo reverses the archive AND deletes the Gmail filter.
+- [x] Action cards show live email count badges.
+- [x] Dashboard inbox count reflects actual INBOX size.
+- [x] Mobile layout stacks correctly at small viewports.
