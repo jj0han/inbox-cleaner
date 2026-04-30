@@ -290,15 +290,29 @@ export const inboxRouter = router({
       }
 
       // 3. Create Gmail filter so future emails from this sender skip inbox
-      const filterRes = await gmail.users.settings.filters.create({
-        userId: "me",
-        requestBody: {
-          criteria: { from: input.senderEmail },
-          action: { removeLabelIds: ["INBOX"] },
-        },
-      });
+      // Gmail returns 400 if an identical filter already exists — find and reuse it in that case
+      let filterId: string;
+      try {
+        const filterRes = await gmail.users.settings.filters.create({
+          userId: "me",
+          requestBody: {
+            criteria: { from: input.senderEmail },
+            action: { removeLabelIds: ["INBOX"] },
+          },
+        });
+        filterId = filterRes.data.id!;
+      } catch (filterErr: unknown) {
+        const msg = filterErr instanceof Error ? filterErr.message : String(filterErr);
+        if (!msg.toLowerCase().includes("filter already exists")) throw filterErr;
 
-      const filterId = filterRes.data.id!;
+        // Find the existing matching filter and reuse its ID
+        const existing = await gmail.users.settings.filters.list({ userId: "me" });
+        const match = (existing.data.filter || []).find(
+          f => f.criteria?.from?.toLowerCase() === input.senderEmail.toLowerCase()
+        );
+        if (!match?.id) throw new Error(`Filter already exists but could not be located for ${input.senderEmail}`);
+        filterId = match.id;
+      }
 
       // 4. Log the action for undo support
       const expiresAt = new Date(Date.now() + 30 * 1000); // 30s undo window
