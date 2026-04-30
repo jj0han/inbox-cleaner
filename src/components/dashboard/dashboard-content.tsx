@@ -3,9 +3,12 @@
 import { trpc } from "@/lib/trpc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActionCard } from "./action-card";
+import { PreviewModal } from "./preview-modal";
+import { useState } from "react";
 
 export function DashboardContent() {
   const { data, isLoading, error } = trpc.inbox.getSummary.useQuery();
+  const [previewAction, setPreviewAction] = useState<string | null>(null);
 
   return (
     <div className="w-full max-w-4xl space-y-8">
@@ -35,14 +38,20 @@ export function DashboardContent() {
         <ActionCard
           title="Remover Newsletters"
           description="E-mails promocionais, boletins informativos e atualizações de produtos."
-          onPreviewClick={() => console.log("Preview Newsletters")}
+          onPreviewClick={() => setPreviewAction("Remover Newsletters")}
         />
         <ActionCard
           title="Limpar Notificações"
           description="Avisos de redes sociais, confirmações de segurança e alertas automáticos."
-          onPreviewClick={() => console.log("Preview Notifications")}
+          onPreviewClick={() => setPreviewAction("Limpar Notificações")}
         />
       </section>
+
+      <PreviewModal 
+        isOpen={previewAction !== null} 
+        title={previewAction || ""} 
+        onClose={() => setPreviewAction(null)} 
+      />
     </div>
   );
 }
