@@ -1,37 +1,34 @@
-# Roadmap
+# Roadmap: Inbox Cleaner
 
-## Phase 1: Foundation & Authentication
-**Goal:** Establish secure connection to Gmail API and fetch necessary metadata.
-**Requirements:** AUTH-01, AUTH-02
-**Success Criteria:**
-- User can log in with Google account and grant necessary permissions.
-- App can fetch a high-level summary of the inbox (e.g., total message count).
-- No message bodies are downloaded or stored.
+## Milestones
 
-## Phase 2: UI Dashboard & Smart Preview
-**Goal:** Build the core Notion-style interface and preview capability to establish trust.
-**Requirements:** DASH-01, DASH-02, SAFE-01
-**UI hint:** yes
-**Success Criteria:**
-- [x] Dashboard displays Hero section with total cleanable emails.
-- [x] Action cards render dynamically based on available automations.
-- [x] Clicking an action card opens a preview modal with 5-10 example emails.
+- ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-04-30)
+- 📋 **v1.1** — Phases 5+ (planned)
 
-## Phase 3: Core Automations & Undo
-**Goal:** Implement the primary 1-click cleanup actions and the safety undo buffer.
-**Requirements:** AUTO-01, AUTO-02, AUTO-03, SAFE-02
-**Success Criteria:**
-- User can successfully execute "Mass Unsubscribe" or "Archive Promos" via action cards.
-- User can execute the "Intelligent 1-Click Cleanup" for comprehensive cleaning.
-- Any action triggers a 10-30 second undo toast; clicking it fully reverts the action.
+## Phases
 
-## Phase 4: Smart Rules & Polish
-**Goal:** Add AI-lite suggestions and finalize the application experience.
-**Requirements:** AUTO-04
-**Success Criteria:**
-- [x] Application suggests auto-archive rules based on unread patterns.
-- [x] User can apply these rules with a single click.
-- [x] Undo reverses the archive AND deletes the Gmail filter.
-- [x] Action cards show live email count badges.
-- [x] Dashboard inbox count reflects actual INBOX size.
-- [x] Mobile layout stacks correctly at small viewports.
+<details>
+<summary>✅ v1.0 MVP (Phases 1-4) — SHIPPED 2026-04-30</summary>
+
+- [x] Phase 1: Foundation & Authentication — completed 2026-04-29
+- [x] Phase 2: UI Dashboard & Smart Preview — completed 2026-04-29
+- [x] Phase 3: Core Automations & Undo — completed 2026-04-30
+- [x] Phase 4: Smart Rules & Polish — completed 2026-04-30
+
+</details>
+
+### 📋 v1.1 (Planned)
+
+- [ ] Phase 5: Real Email Preview (replace mock data in PreviewModal with live Gmail fetch)
+- [ ] Phase 6: Polish & Resilience (rate-limit backoff, error boundaries, loading states)
+
+## Progress
+
+| Phase | Milestone | Status | Completed |
+|-------|-----------|--------|-----------|
+| 1. Foundation & Authentication | v1.0 | ✅ Complete | 2026-04-29 |
+| 2. UI Dashboard & Smart Preview | v1.0 | ✅ Complete | 2026-04-29 |
+| 3. Core Automations & Undo | v1.0 | ✅ Complete | 2026-04-30 |
+| 4. Smart Rules & Polish | v1.0 | ✅ Complete | 2026-04-30 |
+| 5. Real Email Preview | v1.1 | 📋 Planned | — |
+| 6. Polish & Resilience | v1.1 | 📋 Planned | — |

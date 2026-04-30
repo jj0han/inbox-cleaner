@@ -1,28 +1,18 @@
 # Project State
 
 ## Project Reference
-See: .planning/PROJECT.md
+See: .planning/PROJECT.md (updated 2026-04-30)
 
 **Core value:** Provide immediate relief by cleaning thousands of useless emails with a single click, completely removing the cognitive load of inbox management.
-**Current focus:** Phase 4 complete — all features shipped and UAT verified.
-**Current position:** All 4 phases complete. v1 milestone achieved.
+**Current focus:** v1.0 complete. Planning v1.1.
+**Current position:** All phases shipped. Milestone archived. Ready for next milestone.
 
 ## Session State
 **Last session:** 2026-04-30
-**Stopped at:** Phase 4 UAT complete. All 10 checks passed:
-- OAuth scope added (gmail.settings.basic)
-- Inbox count now uses INBOX label list (accurate)
-- Action card count badges rendering (loading skeleton → live counts)
-- Suggestions section loads and shows senders with ≥3 old unread emails
-- Archive + Gmail filter creation working end-to-end
-- Undo reverses both archive AND deletes the Gmail filter
-- Mobile layout stacks correctly at 375px
-
-**Context gathered:** Phase 4 fully complete. Prisma filterId field added. Gmail Filter API integrated.
+**Stopped at:** v1.0 milestone complete. Archived to `.planning/milestones/v1.0-*`.
+**Context gathered:** All 4 phases complete. 9/9 v1 requirements shipped. PROJECT.md evolved.
 **Resume file:** .planning/ROADMAP.md
 
 ## Milestone Status
-- [x] Phase 1: Foundation & Authentication
-- [x] Phase 2: UI Dashboard & Smart Preview
-- [x] Phase 3: Core Automations & Undo
-- [x] Phase 4: Smart Rules & Polish
+- ✅ v1.0 MVP — Phases 1-4 (shipped 2026-04-30)
+- 📋 v1.1 — Phases 5-6 (planned)
