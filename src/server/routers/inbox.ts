@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { google, gmail_v1 } from "googleapis";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { withRetry } from "@/lib/gmail-retry";
 
 const getGmailClient = async () => {
   const session = await getServerSession(authOptions);
@@ -54,23 +55,27 @@ export const inboxRouter = router({
         };
 
         const q = PREVIEW_QUERIES[input.type];
-        const listRes = await gmail.users.messages.list({
-          userId: "me",
-          q,
-          maxResults: 10,
-        });
+        const listRes = await withRetry(() =>
+          gmail.users.messages.list({
+            userId: "me",
+            q,
+            maxResults: 10,
+          })
+        );
 
         const messages = listRes.data.messages || [];
         if (messages.length === 0) return { emails: [], error: null };
 
         const details = await Promise.all(
           messages.map(m =>
-            gmail.users.messages.get({
-              userId: "me",
-              id: m.id!,
-              format: "metadata",
-              metadataHeaders: ["From", "Subject", "List-Unsubscribe"],
-            })
+            withRetry(() =>
+              gmail.users.messages.get({
+                userId: "me",
+                id: m.id!,
+                format: "metadata",
+                metadataHeaders: ["From", "Subject", "List-Unsubscribe"],
+              })
+            )
           )
         );
 
@@ -228,39 +233,43 @@ export const inboxRouter = router({
       return { success: true };
     }),
 
-  // Plan 1.2: Returns estimated message counts per action card type (no DB writes)
+  // POL-01 + POL-03: Per-key fault isolation — each count fails independently, returning null
   getCardCounts: publicProcedure.query(async () => {
-    try {
-      const gmail = await getGmailClient();
-      const queries: Record<string, string> = {
-        NEWSLETTERS: "label:INBOX has:list-unsubscribe",
-        PROMOTIONS: "label:INBOX category:promotions",
-        SOCIAL: "label:INBOX category:social",
-        SMART_CLEANUP: "label:INBOX (category:promotions OR category:social OR category:updates) older_than:30d",
-      };
-      const counts = await Promise.all(
-        Object.entries(queries).map(async ([type, q]) => {
-          const res = await gmail.users.messages.list({ userId: "me", q, maxResults: 1 });
-          return [type, res.data.resultSizeEstimate || 0] as [string, number];
-        })
-      );
-      return Object.fromEntries(counts) as Record<string, number>;
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error("getCardCounts failed", msg);
-      return { NEWSLETTERS: 0, PROMOTIONS: 0, SOCIAL: 0, SMART_CLEANUP: 0, error: "gmail_auth_error" };
-    }
+    const gmail = await getGmailClient(); // auth failure throws → tRPC surfaces as error state
+    const queries: Record<string, string> = {
+      NEWSLETTERS: "label:INBOX has:list-unsubscribe",
+      PROMOTIONS: "label:INBOX category:promotions",
+      SOCIAL: "label:INBOX category:social",
+      SMART_CLEANUP: "label:INBOX (category:promotions OR category:social OR category:updates) older_than:30d",
+    };
+    const counts = await Promise.all(
+      Object.entries(queries).map(async ([type, q]) => {
+        try {
+          const res = await withRetry(() =>
+            gmail.users.messages.list({ userId: "me", q, maxResults: 1 })
+          );
+          return [type, res.data.resultSizeEstimate ?? 0] as [string, number | null];
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error(`getCardCounts: failed to fetch count for ${type}`, msg);
+          return [type, null] as [string, number | null];
+        }
+      })
+    );
+    return Object.fromEntries(counts) as Record<string, number | null>;
   }),
 
   // Plan 1.3: Analyse inbox for senders with ≥3 unread emails older than 14 days
   getSuggestions: publicProcedure.query(async () => {
     try {
       const gmail = await getGmailClient();
-      const listRes = await gmail.users.messages.list({
-        userId: "me",
-        q: "is:unread older_than:14d label:INBOX",
-        maxResults: 100,
-      });
+      const listRes = await withRetry(() =>
+        gmail.users.messages.list({
+          userId: "me",
+          q: "is:unread older_than:14d label:INBOX",
+          maxResults: 100,
+        })
+      );
 
       const messages = listRes.data.messages || [];
       if (messages.length === 0) return [];
@@ -276,12 +285,14 @@ export const inboxRouter = router({
       for (const chunk of chunks) {
         const details = await Promise.all(
           chunk.map(m =>
-            gmail.users.messages.get({
-              userId: "me",
-              id: m.id!,
-              format: "metadata",
-              metadataHeaders: ["From", "Date"],
-            })
+            withRetry(() =>
+              gmail.users.messages.get({
+                userId: "me",
+                id: m.id!,
+                format: "metadata",
+                metadataHeaders: ["From", "Date"],
+              })
+            )
           )
         );
 

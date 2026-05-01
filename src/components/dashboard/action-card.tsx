@@ -7,7 +7,7 @@ interface ActionCardProps {
   title: string;
   description: string;
   type: "NEWSLETTERS" | "PROMOTIONS" | "SOCIAL" | "SMART_CLEANUP";
-  count?: number; // undefined = loading, 0 = no emails, N = N emails
+  count?: number | null; // undefined = loading, null = fetch failed (show —), 0 = no emails, N = N emails
   onPreviewClick: () => void;
   onCleanupClick: () => void;
   isCleaning?: boolean;
@@ -37,6 +37,11 @@ export function ActionCard({
         {count === undefined ? (
           // Loading skeleton
           <span className="inline-block h-5 w-16 rounded-full bg-zinc-200 animate-pulse" />
+        ) : count === null ? (
+          // Fetch failed — silent em dash degradation (POL-03)
+          <span className="inline-flex items-center rounded-full bg-zinc-50 px-2.5 py-0.5 text-xs font-medium text-zinc-400 ring-1 ring-inset ring-zinc-200">
+            — emails
+          </span>
         ) : count > 0 ? (
           <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
             {count.toLocaleString()} emails

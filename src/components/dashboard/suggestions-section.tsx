@@ -14,6 +14,7 @@ interface SuggestionsSectionProps {
   suggestions: Suggestion[];
   isLoading: boolean;
   isApplying: boolean;
+  error?: boolean;
   onRefresh: () => void;
   onApply: (email: string) => void;
 }
@@ -29,6 +30,7 @@ export function SuggestionsSection({
   suggestions,
   isLoading,
   isApplying,
+  error = false,
   onRefresh,
   onApply,
 }: SuggestionsSectionProps) {
@@ -76,7 +78,20 @@ export function SuggestionsSection({
 
       {/* Body */}
       <div className="divide-y divide-zinc-50">
-        {isLoading ? (
+        {error ? (
+          // Error state — analysis failed (POL-02)
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center gap-3">
+            <span className="text-2xl">⚠️</span>
+            <p className="text-sm font-semibold text-zinc-700">Não foi possível analisar sua caixa.</p>
+            <p className="text-xs text-zinc-400">Ocorreu um erro ao buscar sugestões.</p>
+            <button
+              onClick={onRefresh}
+              className="mt-1 px-4 py-1.5 text-xs font-semibold rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        ) : isLoading ? (
           // Loading skeleton — 3 rows
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="flex items-center justify-between px-6 py-4 gap-4">

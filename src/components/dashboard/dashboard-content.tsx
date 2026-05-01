@@ -21,6 +21,7 @@ export function DashboardContent() {
   const {
     data: suggestions,
     isLoading: isSuggestionsLoading,
+    isError: isSuggestionsError,
     refetch: refetchSuggestions,
   } = trpc.inbox.getSuggestions.useQuery();
 
@@ -71,7 +72,7 @@ export function DashboardContent() {
           title="Remover Newsletters"
           description="E-mails promocionais, boletins informativos e atualizações de produtos."
           type="NEWSLETTERS"
-          count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.NEWSLETTERS}
+          count={isCountsLoading ? undefined : (cardCounts as Record<string, number | null>)?.NEWSLETTERS}
           onPreviewClick={() => setPreviewAction({ type: "NEWSLETTERS", title: "Remover Newsletters" })}
           onCleanupClick={() => cleanup("NEWSLETTERS", unsubscribeEnabled)}
           isCleaning={isProcessing && activeAction?.type === "NEWSLETTERS"}
@@ -96,7 +97,7 @@ export function DashboardContent() {
           title="Limpar Notificações"
           description="Avisos de redes sociais, confirmações de segurança e alertas automáticos."
           type="SOCIAL"
-          count={isCountsLoading ? undefined : (cardCounts as Record<string, number>)?.SOCIAL}
+          count={isCountsLoading ? undefined : (cardCounts as Record<string, number | null>)?.SOCIAL}
           onPreviewClick={() => setPreviewAction({ type: "SOCIAL", title: "Limpar Notificações" })}
           onCleanupClick={() => cleanup("SOCIAL")}
           isCleaning={isProcessing && activeAction?.type === "SOCIAL"}
@@ -109,6 +110,7 @@ export function DashboardContent() {
         suggestions={suggestions ?? []}
         isLoading={isSuggestionsLoading}
         isApplying={isApplying}
+        error={isSuggestionsError}
         onRefresh={() => refetchSuggestions()}
         onApply={applySuggestion}
       />
