@@ -993,8 +993,18 @@ export namespace Prisma {
 
   export type AggregateActionLog = {
     _count: ActionLogCountAggregateOutputType | null
+    _avg: ActionLogAvgAggregateOutputType | null
+    _sum: ActionLogSumAggregateOutputType | null
     _min: ActionLogMinAggregateOutputType | null
     _max: ActionLogMaxAggregateOutputType | null
+  }
+
+  export type ActionLogAvgAggregateOutputType = {
+    emailCount: number | null
+  }
+
+  export type ActionLogSumAggregateOutputType = {
+    emailCount: number | null
   }
 
   export type ActionLogMinAggregateOutputType = {
@@ -1002,6 +1012,7 @@ export namespace Prisma {
     userId: string | null
     actionType: string | null
     status: string | null
+    emailCount: number | null
     createdAt: Date | null
     expiresAt: Date | null
     filterId: string | null
@@ -1012,6 +1023,7 @@ export namespace Prisma {
     userId: string | null
     actionType: string | null
     status: string | null
+    emailCount: number | null
     createdAt: Date | null
     expiresAt: Date | null
     filterId: string | null
@@ -1022,6 +1034,7 @@ export namespace Prisma {
     userId: number
     actionType: number
     status: number
+    emailCount: number
     createdAt: number
     expiresAt: number
     filterId: number
@@ -1029,11 +1042,20 @@ export namespace Prisma {
   }
 
 
+  export type ActionLogAvgAggregateInputType = {
+    emailCount?: true
+  }
+
+  export type ActionLogSumAggregateInputType = {
+    emailCount?: true
+  }
+
   export type ActionLogMinAggregateInputType = {
     id?: true
     userId?: true
     actionType?: true
     status?: true
+    emailCount?: true
     createdAt?: true
     expiresAt?: true
     filterId?: true
@@ -1044,6 +1066,7 @@ export namespace Prisma {
     userId?: true
     actionType?: true
     status?: true
+    emailCount?: true
     createdAt?: true
     expiresAt?: true
     filterId?: true
@@ -1054,6 +1077,7 @@ export namespace Prisma {
     userId?: true
     actionType?: true
     status?: true
+    emailCount?: true
     createdAt?: true
     expiresAt?: true
     filterId?: true
@@ -1098,6 +1122,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ActionLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ActionLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ActionLogMinAggregateInputType
@@ -1128,6 +1164,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ActionLogCountAggregateInputType | true
+    _avg?: ActionLogAvgAggregateInputType
+    _sum?: ActionLogSumAggregateInputType
     _min?: ActionLogMinAggregateInputType
     _max?: ActionLogMaxAggregateInputType
   }
@@ -1137,10 +1175,13 @@ export namespace Prisma {
     userId: string
     actionType: string
     status: string
+    emailCount: number
     createdAt: Date
     expiresAt: Date
     filterId: string | null
     _count: ActionLogCountAggregateOutputType | null
+    _avg: ActionLogAvgAggregateOutputType | null
+    _sum: ActionLogSumAggregateOutputType | null
     _min: ActionLogMinAggregateOutputType | null
     _max: ActionLogMaxAggregateOutputType | null
   }
@@ -1164,6 +1205,7 @@ export namespace Prisma {
     userId?: boolean
     actionType?: boolean
     status?: boolean
+    emailCount?: boolean
     createdAt?: boolean
     expiresAt?: boolean
     filterId?: boolean
@@ -1176,6 +1218,7 @@ export namespace Prisma {
     userId?: boolean
     actionType?: boolean
     status?: boolean
+    emailCount?: boolean
     createdAt?: boolean
     expiresAt?: boolean
     filterId?: boolean
@@ -1186,6 +1229,7 @@ export namespace Prisma {
     userId?: boolean
     actionType?: boolean
     status?: boolean
+    emailCount?: boolean
     createdAt?: boolean
     expiresAt?: boolean
     filterId?: boolean
@@ -1196,12 +1240,13 @@ export namespace Prisma {
     userId?: boolean
     actionType?: boolean
     status?: boolean
+    emailCount?: boolean
     createdAt?: boolean
     expiresAt?: boolean
     filterId?: boolean
   }
 
-  export type ActionLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "actionType" | "status" | "createdAt" | "expiresAt" | "filterId", ExtArgs["result"]["actionLog"]>
+  export type ActionLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "actionType" | "status" | "emailCount" | "createdAt" | "expiresAt" | "filterId", ExtArgs["result"]["actionLog"]>
   export type ActionLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | ActionLog$itemsArgs<ExtArgs>
     _count?: boolean | ActionLogCountOutputTypeDefaultArgs<ExtArgs>
@@ -1219,6 +1264,7 @@ export namespace Prisma {
       userId: string
       actionType: string
       status: string
+      emailCount: number
       createdAt: Date
       expiresAt: Date
       filterId: string | null
@@ -1650,6 +1696,7 @@ export namespace Prisma {
     readonly userId: FieldRef<"ActionLog", 'String'>
     readonly actionType: FieldRef<"ActionLog", 'String'>
     readonly status: FieldRef<"ActionLog", 'String'>
+    readonly emailCount: FieldRef<"ActionLog", 'Int'>
     readonly createdAt: FieldRef<"ActionLog", 'DateTime'>
     readonly expiresAt: FieldRef<"ActionLog", 'DateTime'>
     readonly filterId: FieldRef<"ActionLog", 'String'>
@@ -3137,6 +3184,7 @@ export namespace Prisma {
     userId: 'userId',
     actionType: 'actionType',
     status: 'status',
+    emailCount: 'emailCount',
     createdAt: 'createdAt',
     expiresAt: 'expiresAt',
     filterId: 'filterId'
@@ -3183,6 +3231,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -3190,9 +3245,9 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
+   * Reference to a field of type 'Float'
    */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
   /**
    * Deep Input Types
@@ -3207,6 +3262,7 @@ export namespace Prisma {
     userId?: StringFilter<"ActionLog"> | string
     actionType?: StringFilter<"ActionLog"> | string
     status?: StringFilter<"ActionLog"> | string
+    emailCount?: IntFilter<"ActionLog"> | number
     createdAt?: DateTimeFilter<"ActionLog"> | Date | string
     expiresAt?: DateTimeFilter<"ActionLog"> | Date | string
     filterId?: StringNullableFilter<"ActionLog"> | string | null
@@ -3218,6 +3274,7 @@ export namespace Prisma {
     userId?: SortOrder
     actionType?: SortOrder
     status?: SortOrder
+    emailCount?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
     filterId?: SortOrderInput | SortOrder
@@ -3232,6 +3289,7 @@ export namespace Prisma {
     userId?: StringFilter<"ActionLog"> | string
     actionType?: StringFilter<"ActionLog"> | string
     status?: StringFilter<"ActionLog"> | string
+    emailCount?: IntFilter<"ActionLog"> | number
     createdAt?: DateTimeFilter<"ActionLog"> | Date | string
     expiresAt?: DateTimeFilter<"ActionLog"> | Date | string
     filterId?: StringNullableFilter<"ActionLog"> | string | null
@@ -3243,12 +3301,15 @@ export namespace Prisma {
     userId?: SortOrder
     actionType?: SortOrder
     status?: SortOrder
+    emailCount?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
     filterId?: SortOrderInput | SortOrder
     _count?: ActionLogCountOrderByAggregateInput
+    _avg?: ActionLogAvgOrderByAggregateInput
     _max?: ActionLogMaxOrderByAggregateInput
     _min?: ActionLogMinOrderByAggregateInput
+    _sum?: ActionLogSumOrderByAggregateInput
   }
 
   export type ActionLogScalarWhereWithAggregatesInput = {
@@ -3259,6 +3320,7 @@ export namespace Prisma {
     userId?: StringWithAggregatesFilter<"ActionLog"> | string
     actionType?: StringWithAggregatesFilter<"ActionLog"> | string
     status?: StringWithAggregatesFilter<"ActionLog"> | string
+    emailCount?: IntWithAggregatesFilter<"ActionLog"> | number
     createdAt?: DateTimeWithAggregatesFilter<"ActionLog"> | Date | string
     expiresAt?: DateTimeWithAggregatesFilter<"ActionLog"> | Date | string
     filterId?: StringNullableWithAggregatesFilter<"ActionLog"> | string | null
@@ -3314,6 +3376,7 @@ export namespace Prisma {
     userId: string
     actionType: string
     status?: string
+    emailCount?: number
     createdAt?: Date | string
     expiresAt: Date | string
     filterId?: string | null
@@ -3325,6 +3388,7 @@ export namespace Prisma {
     userId: string
     actionType: string
     status?: string
+    emailCount?: number
     createdAt?: Date | string
     expiresAt: Date | string
     filterId?: string | null
@@ -3336,6 +3400,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     actionType?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    emailCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     filterId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -3347,6 +3412,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     actionType?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    emailCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     filterId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -3358,6 +3424,7 @@ export namespace Prisma {
     userId: string
     actionType: string
     status?: string
+    emailCount?: number
     createdAt?: Date | string
     expiresAt: Date | string
     filterId?: string | null
@@ -3368,6 +3435,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     actionType?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    emailCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     filterId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -3378,6 +3446,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     actionType?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    emailCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     filterId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -3438,6 +3507,17 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -3483,9 +3563,14 @@ export namespace Prisma {
     userId?: SortOrder
     actionType?: SortOrder
     status?: SortOrder
+    emailCount?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
     filterId?: SortOrder
+  }
+
+  export type ActionLogAvgOrderByAggregateInput = {
+    emailCount?: SortOrder
   }
 
   export type ActionLogMaxOrderByAggregateInput = {
@@ -3493,6 +3578,7 @@ export namespace Prisma {
     userId?: SortOrder
     actionType?: SortOrder
     status?: SortOrder
+    emailCount?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
     filterId?: SortOrder
@@ -3503,9 +3589,14 @@ export namespace Prisma {
     userId?: SortOrder
     actionType?: SortOrder
     status?: SortOrder
+    emailCount?: SortOrder
     createdAt?: SortOrder
     expiresAt?: SortOrder
     filterId?: SortOrder
+  }
+
+  export type ActionLogSumOrderByAggregateInput = {
+    emailCount?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -3523,6 +3614,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -3597,6 +3704,14 @@ export namespace Prisma {
     set?: string
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -3661,6 +3776,17 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -3703,7 +3829,7 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
-  export type NestedIntFilter<$PrismaModel = never> = {
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
     notIn?: number[]
@@ -3711,7 +3837,23 @@ export namespace Prisma {
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -3805,6 +3947,7 @@ export namespace Prisma {
     userId: string
     actionType: string
     status?: string
+    emailCount?: number
     createdAt?: Date | string
     expiresAt: Date | string
     filterId?: string | null
@@ -3815,6 +3958,7 @@ export namespace Prisma {
     userId: string
     actionType: string
     status?: string
+    emailCount?: number
     createdAt?: Date | string
     expiresAt: Date | string
     filterId?: string | null
@@ -3841,6 +3985,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     actionType?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    emailCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     filterId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -3851,6 +3996,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     actionType?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    emailCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     filterId?: NullableStringFieldUpdateOperationsInput | string | null

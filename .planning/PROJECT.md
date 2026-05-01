@@ -8,6 +8,18 @@ A smart, zero-setup web application that connects to Gmail to help users instant
 
 Provide immediate relief by cleaning thousands of useless emails with a single click, completely removing the cognitive load of inbox management.
 
+## Current Milestone: v1.2 Analytics & User Feedback
+
+**Goal:** Implement a comprehensive analytics dashboard and user feedback loop to visualize impact and refine the suggestion engine.
+
+**Target features:**
+- Impact Stats (Total Cleaned, Time Saved)
+- Cleaning History Log
+- Top Senders Breakdown Chart
+- Suggestion Feedback (Thumbs Up/Down)
+- Post-Action Success Survey
+- Direct Feedback Widget
+
 ## Requirements
 
 ### Validated
@@ -26,9 +38,12 @@ Provide immediate relief by cleaning thousands of useless emails with a single c
 - ✓ Gmail API resilience (exponential backoff) — v1.1
 - ✓ Dashboard error surfacing for failed suggestions — v1.1
 
-### Active (v1.2 Prep)
+### Active (v1.2)
 
-- [ ] Define requirements for v1.2
+- [ ] Define requirements for v1.2 categories (Stats, History, Feedback)
+- [ ] Implement Analytics storage (Prisma)
+- [ ] Build Stats Dashboard components
+- [ ] Build Feedback/Suggestion tuning UI
 
 ### Out of Scope
 
@@ -52,6 +67,23 @@ The app is now production-ready.
 - **Simplicity**: Zero setup required from the user.
 - **API Resilience**: Exponential backoff (withRetry) applied to all Gmail API calls.
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
@@ -66,4 +98,4 @@ The app is now production-ready.
 | tRPC Error Surfacing | Allow client to show "Try again" state | ✓ Good — user feedback |
 
 ---
-*Last updated: 2026-05-01 — v1.1 milestone complete*
+*Last updated: 2026-05-01 — v1.2 started*

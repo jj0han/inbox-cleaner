@@ -157,6 +157,7 @@ export const inboxRouter = router({
           userId,
           actionType: input.type,
           expiresAt,
+          emailCount: messageIds.length,
           items: {
             create: messageIds.map(id => ({ messageId: id })),
           },
@@ -418,6 +419,7 @@ export const inboxRouter = router({
           userId,
           actionType: "RULE_APPLY",
           expiresAt,
+          emailCount: messageIds.length,
           filterId,
           items: {
             create: messageIds.map(id => ({ messageId: id })),
@@ -525,5 +527,83 @@ export const inboxRouter = router({
       
       return results;
     }),
+
+  getImpactStats: publicProcedure.query(async () => {
+    const session = await getServerSession(authOptions);
+    const userId = session!.user!.email!;
+
+    const result = await db.actionLog.aggregate({
+      where: {
+        userId,
+        status: { not: "UNDONE" },
+      },
+      _sum: {
+        emailCount: true,
+      },
+    });
+
+    const totalCleaned = result._sum.emailCount || 0;
+    // Multiplier: 2 seconds per email saved
+    const timeSavedMinutes = Math.floor((totalCleaned * 2) / 60);
+
+    return {
+      totalCleaned,
+      timeSavedMinutes,
+    };
+  }),
+
+  getTopSenders: publicProcedure.query(async () => {
+    const gmail = await getGmailClient();
+    
+    // Scan unread inbox messages (limit 200 for performance)
+    const response = await withRetry(() =>
+      gmail.users.messages.list({
+        userId: "me",
+        q: "is:unread label:INBOX",
+        maxResults: 200,
+      })
+    );
+
+    const messages = response.data.messages || [];
+    if (messages.length === 0) return [];
+
+    // Fetch metadata in parallel chunks of 20
+    const chunks: gmail_v1.Schema$Message[][] = [];
+    for (let i = 0; i < messages.length; i += 20) {
+      chunks.push(messages.slice(i, i + 20));
+    }
+
+    const senderCounts = new Map<string, number>();
+
+    for (const chunk of chunks) {
+      const details = await Promise.all(
+        chunk.map(m =>
+          withRetry(() =>
+            gmail.users.messages.get({
+              userId: "me",
+              id: m.id!,
+              format: "metadata",
+              metadataHeaders: ["From"],
+            })
+          )
+        )
+      );
+
+      for (const detail of details) {
+        const from = detail.data.payload?.headers?.find(h => h.name === "From")?.value || "Unknown";
+        // Extract display name or raw email
+        const nameMatch = from.match(/^"?([^"<]+)"?\s*</);
+        const emailMatch = from.match(/<([^>]+)>/);
+        const sender = nameMatch ? nameMatch[1].trim() : emailMatch ? emailMatch[1] : from;
+        
+        senderCounts.set(sender, (senderCounts.get(sender) || 0) + 1);
+      }
+    }
+
+    return Array.from(senderCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([sender, count]) => ({ sender, count }));
+  }),
 });
 

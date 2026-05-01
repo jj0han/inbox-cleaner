@@ -25,11 +25,15 @@ export function DashboardContent() {
     refetch: refetchSuggestions,
   } = trpc.inbox.getSuggestions.useQuery();
 
+  const { data: impactStats } = trpc.inbox.getImpactStats.useQuery();
   const [previewAction, setPreviewAction] = useState<{ type: ActionType; title: string } | null>(null);
   const [unsubscribeEnabled, setUnsubscribeEnabled] = useState(false);
   const { cleanup, isProcessing } = useCleanup();
   const { apply: applySuggestion, isPending: isApplying } = useSuggestion();
   const { activeAction } = useUndo();
+
+  const impactTotal = impactStats?.totalCleaned || 0;
+  const impactTime = impactStats?.timeSavedMinutes || 0;
 
   return (
     <div className="w-full max-w-4xl space-y-8">
@@ -51,6 +55,21 @@ export function DashboardContent() {
             <span className="text-6xl font-black text-zinc-900 tracking-tighter">
               {new Intl.NumberFormat('pt-BR').format(data?.messagesTotal || 0)}
             </span>
+
+            {impactTotal > 0 && !activeAction && (
+              <div className="mt-4 flex items-center gap-2 text-sm font-medium text-zinc-500 animate-in fade-in slide-in-from-bottom-1 duration-500">
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-100/50">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  <span>
+                    Você já poupou <strong>{impactTime} minutos</strong> limpando <strong>{new Intl.NumberFormat('pt-BR').format(impactTotal)} e-mails</strong>
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="mt-8 flex flex-col items-center gap-4">
               <Button
                 onClick={() => cleanup("SMART_CLEANUP")}

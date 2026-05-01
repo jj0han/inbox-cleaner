@@ -2,10 +2,20 @@
 
 ## Milestones
 
+- 🔄 **v1.2 Analytics & User Feedback** — Phases 9-11 (started 2026-05-01)
 - ✅ **v1.1 Real Preview, Polish & Unsubscribe** — Phases 5-8 (shipped 2026-05-01)
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-04-30)
 
 ## Phases
+
+<details>
+<summary>🔄 v1.2 Analytics & User Feedback (Phases 9-11)</summary>
+
+- [ ] Phase 9: Analytics Foundation & Stats
+- [ ] Phase 10: History Log & Undo Integration
+- [ ] Phase 11: Feedback Loop & Suggestion Tuning
+
+</details>
 
 <details>
 <summary>✅ v1.1 Real Preview, Polish & Unsubscribe (Phases 5-8) — SHIPPED 2026-05-01</summary>
@@ -39,3 +49,6 @@
 | 6. Unsubscribe Link Detection | v1.1 | ✅ Complete | 2026-04-30 |
 | 7. Polish & Resilience | v1.1 | ✅ Complete | 2026-04-30 |
 | 8. Hardening & Documentation Integrity | v1.1 | ✅ Complete | 2026-05-01 |
+| 9. Analytics Foundation & Stats | v1.2 | 🔄 Active | — |
+| 10. History Log & Undo Integration | v1.2 | ⏳ Pending | — |
+| 11. Feedback Loop & Suggestion Tuning | v1.2 | ⏳ Pending | — |

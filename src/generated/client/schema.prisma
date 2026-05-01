@@ -15,6 +15,7 @@ model ActionLog {
   userId     String
   actionType String // e.g., "ARCHIVE_PROMOS", "ARCHIVE_SOCIAL", "RULE_APPLY"
   status     String       @default("COMPLETED") // PENDING, COMPLETED, UNDONE, EXPIRED
+  emailCount Int          @default(0)
   createdAt  DateTime     @default(now())
   expiresAt  DateTime
   filterId   String? // Gmail filter ID — set when a rule is applied, used for undo

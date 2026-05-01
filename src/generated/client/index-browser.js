@@ -122,6 +122,7 @@ exports.Prisma.ActionLogScalarFieldEnum = {
   userId: 'userId',
   actionType: 'actionType',
   status: 'status',
+  emailCount: 'emailCount',
   createdAt: 'createdAt',
   expiresAt: 'expiresAt',
   filterId: 'filterId'
