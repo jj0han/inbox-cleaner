@@ -1,4 +1,5 @@
 import { router, publicProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { google, gmail_v1 } from "googleapis";
@@ -26,11 +27,13 @@ export const inboxRouter = router({
   getSummary: publicProcedure.query(async () => {
     try {
       const gmail = await getGmailClient();
-      const response = await gmail.users.messages.list({
-        userId: "me",
-        labelIds: ["INBOX"],
-        maxResults: 1,
-      });
+      const response = await withRetry(() => 
+        gmail.users.messages.list({
+          userId: "me",
+          labelIds: ["INBOX"],
+          maxResults: 1,
+        })
+      );
       return { messagesTotal: response.data.resultSizeEstimate || 0, error: null };
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -133,11 +136,13 @@ export const inboxRouter = router({
       else if (input.type === "SOCIAL") query += "category:social";
       else if (input.type === "SMART_CLEANUP") query += "(category:promotions OR category:social OR category:updates) older_than:30d";
 
-      const response = await gmail.users.messages.list({
-        userId: "me",
-        q: query,
-        maxResults: 500, // Limit for phase 3 stability
-      });
+      const response = await withRetry(() =>
+        gmail.users.messages.list({
+          userId: "me",
+          q: query,
+          maxResults: 500, // Limit for phase 3 stability
+        })
+      );
 
       const messageIds = (response.data.messages || []).map(m => m.id as string);
 
@@ -174,13 +179,15 @@ export const inboxRouter = router({
       const gmail = await getGmailClient();
       
       // Batch modify to remove INBOX label (archiving)
-      await gmail.users.messages.batchModify({
-        userId: "me",
-        requestBody: {
-          ids: input.messageIds,
-          removeLabelIds: ["INBOX"],
-        },
-      });
+      await withRetry(() =>
+        gmail.users.messages.batchModify({
+          userId: "me",
+          requestBody: {
+            ids: input.messageIds,
+            removeLabelIds: ["INBOX"],
+          },
+        })
+      );
 
       return { success: true };
     }),
@@ -204,21 +211,25 @@ export const inboxRouter = router({
       const messageIds = action.items.map(i => i.messageId);
 
       // Batch modify to add INBOX label back
-      await gmail.users.messages.batchModify({
-        userId: "me",
-        requestBody: {
-          ids: messageIds,
-          addLabelIds: ["INBOX"],
-        },
-      });
+      await withRetry(() =>
+        gmail.users.messages.batchModify({
+          userId: "me",
+          requestBody: {
+            ids: messageIds,
+            addLabelIds: ["INBOX"],
+          },
+        })
+      );
 
       // For RULE_APPLY actions: also delete the Gmail filter so future emails are no longer skipped
       if (action.filterId) {
         try {
-          await gmail.users.settings.filters.delete({
-            userId: "me",
-            id: action.filterId,
-          });
+          await withRetry(() =>
+            gmail.users.settings.filters.delete({
+              userId: "me",
+              id: action.filterId!,
+            })
+          );
         } catch (e) {
           // Log but don't fail undo — filter may already be deleted
           console.error("Failed to delete Gmail filter during undo", e);
@@ -331,7 +342,11 @@ export const inboxRouter = router({
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error("getSuggestions failed", msg);
-      return [];
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to analyze suggestions. Please try again.",
+        cause: e,
+      });
     }
   }),
 
@@ -344,43 +359,51 @@ export const inboxRouter = router({
       const userId = session!.user!.email!;
 
       // 1. Find all inbox messages from this sender
-      const listRes = await gmail.users.messages.list({
-        userId: "me",
-        q: `from:${input.senderEmail} label:INBOX`,
-        maxResults: 500,
-      });
+      const listRes = await withRetry(() =>
+        gmail.users.messages.list({
+          userId: "me",
+          q: `from:${input.senderEmail} label:INBOX`,
+          maxResults: 500,
+        })
+      );
 
       const messageIds = (listRes.data.messages || []).map(m => m.id as string);
 
       // 2. Archive existing messages if any
       if (messageIds.length > 0) {
-        await gmail.users.messages.batchModify({
-          userId: "me",
-          requestBody: {
-            ids: messageIds,
-            removeLabelIds: ["INBOX"],
-          },
-        });
+        await withRetry(() =>
+          gmail.users.messages.batchModify({
+            userId: "me",
+            requestBody: {
+              ids: messageIds,
+              removeLabelIds: ["INBOX"],
+            },
+          })
+        );
       }
 
       // 3. Create Gmail filter so future emails from this sender skip inbox
       // Gmail returns 400 if an identical filter already exists — find and reuse it in that case
       let filterId: string;
       try {
-        const filterRes = await gmail.users.settings.filters.create({
-          userId: "me",
-          requestBody: {
-            criteria: { from: input.senderEmail },
-            action: { removeLabelIds: ["INBOX"] },
-          },
-        });
+        const filterRes = await withRetry(() =>
+          gmail.users.settings.filters.create({
+            userId: "me",
+            requestBody: {
+              criteria: { from: input.senderEmail },
+              action: { removeLabelIds: ["INBOX"] },
+            },
+          })
+        );
         filterId = filterRes.data.id!;
       } catch (filterErr: unknown) {
         const msg = filterErr instanceof Error ? filterErr.message : String(filterErr);
         if (!msg.toLowerCase().includes("filter already exists")) throw filterErr;
 
         // Find the existing matching filter and reuse its ID
-        const existing = await gmail.users.settings.filters.list({ userId: "me" });
+        const existing = await withRetry(() =>
+          gmail.users.settings.filters.list({ userId: "me" })
+        );
         const match = (existing.data.filter || []).find(
           f => f.criteria?.from?.toLowerCase() === input.senderEmail.toLowerCase()
         );
@@ -415,12 +438,14 @@ export const inboxRouter = router({
     .mutation(async ({ input }) => {
       const gmail = await getGmailClient();
       
-      const detail = await gmail.users.messages.get({
-        userId: "me",
-        id: input.messageId,
-        format: "metadata",
-        metadataHeaders: ["List-Unsubscribe"],
-      });
+      const detail = await withRetry(() =>
+        gmail.users.messages.get({
+          userId: "me",
+          id: input.messageId,
+          format: "metadata",
+          metadataHeaders: ["List-Unsubscribe"],
+        })
+      );
       
       const unsubHeader = (detail.data.payload?.headers || []).find(h => h.name === "List-Unsubscribe")?.value || "";
       const unsubLinks = unsubHeader.match(/<([^>]+)>/g)?.map(l => l.slice(1, -1)) || [];
@@ -440,10 +465,12 @@ export const inboxRouter = router({
             `To: ${email}\r\nSubject: ${decodeURIComponent(subject)}\r\n\r\nUnsubscribe`
           ).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
           
-          await gmail.users.messages.send({
-            userId: "me",
-            requestBody: { raw }
-          });
+          await withRetry(() =>
+            gmail.users.messages.send({
+              userId: "me",
+              requestBody: { raw }
+            })
+          );
         }
         return { success: true };
       } catch (e) {
@@ -461,12 +488,14 @@ export const inboxRouter = router({
       // Process in small serial chunks to avoid rate limiting
       for (const id of input.messageIds) {
         try {
-          const detail = await gmail.users.messages.get({
-            userId: "me",
-            id,
-            format: "metadata",
-            metadataHeaders: ["List-Unsubscribe"],
-          });
+          const detail = await withRetry(() =>
+            gmail.users.messages.get({
+              userId: "me",
+              id,
+              format: "metadata",
+              metadataHeaders: ["List-Unsubscribe"],
+            })
+          );
           
           const unsubHeader = (detail.data.payload?.headers || []).find(h => h.name === "List-Unsubscribe")?.value || "";
           const unsubLinks = unsubHeader.match(/<([^>]+)>/g)?.map(l => l.slice(1, -1)) || [];
@@ -480,7 +509,9 @@ export const inboxRouter = router({
               const [email, query] = target.split("?");
               const subject = query?.match(/subject=([^&]+)/)?.[1] || "Unsubscribe";
               const raw = Buffer.from(`To: ${email}\r\nSubject: ${decodeURIComponent(subject)}\r\n\r\nUnsubscribe`).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-              await gmail.users.messages.send({ userId: "me", requestBody: { raw } });
+              await withRetry(() =>
+                gmail.users.messages.send({ userId: "me", requestBody: { raw } })
+              );
             }
             results.success++;
           } else {
