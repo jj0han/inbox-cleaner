@@ -57,14 +57,14 @@
 | 5. Real Email Preview | v1.1 | ✅ Complete | 2026-04-30 |
 | 6. Unsubscribe Link Detection | v1.1 | ✅ Complete | 2026-04-30 |
 | 7. Polish & Resilience | v1.1 | ✅ Complete | 2026-04-30 |
-| 8. Hardening & Documentation Integrity | v1.1 | 🔲 In Progress | — |
+| 8. Hardening & Documentation Integrity | v1.1 | ✅ Complete | 2026-05-01 |
 
 ## Phase 8: Hardening & Documentation Integrity
 **Goal:** Resolve wiring bugs in suggestions, extend Gmail API resilience to bulk actions, and backfill verification artifacts.
 **Requirements:** POL-01, POL-02, Documentation
 **Success Criteria:**
-- [ ] `getSuggestions` throws on failure (allowing client to show error state)
-- [ ] `withRetry` applied to all Gmail procedures in `inbox.ts`
-- [ ] Phase 5 VERIFICATION.md exists and covers PREV-01, 02, 03
-- [ ] Phase 6 VERIFICATION.md has all boxes checked and verified
-- [ ] No regression in core E2E flows
+- [x] `getSuggestions` throws on failure (allowing client to show error state)
+- [x] `withRetry` applied to all Gmail procedures in `inbox.ts`
+- [x] Phase 5 VERIFICATION.md exists and covers PREV-01, 02, 03
+- [x] Phase 6 VERIFICATION.md has all boxes checked and verified
+- [x] No regression in core E2E flows
