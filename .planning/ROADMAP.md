@@ -2,10 +2,20 @@
 
 ## Milestones
 
+- ✅ **v1.1 Real Preview, Polish & Unsubscribe** — Phases 5-8 (shipped 2026-05-01)
 - ✅ **v1.0 MVP** — Phases 1-4 (shipped 2026-04-30)
-- 🚧 **v1.1 Real Preview, Polish & Unsubscribe** — Phases 5-7 (in progress)
 
 ## Phases
+
+<details>
+<summary>✅ v1.1 Real Preview, Polish & Unsubscribe (Phases 5-8) — SHIPPED 2026-05-01</summary>
+
+- [x] Phase 5: Real Email Preview — completed 2026-04-30
+- [x] Phase 6: Unsubscribe Link Detection — completed 2026-04-30
+- [x] Phase 7: Polish & Resilience — completed 2026-04-30
+- [x] Phase 8: Hardening & Documentation Integrity — completed 2026-05-01
+
+</details>
 
 <details>
 <summary>✅ v1.0 MVP (Phases 1-4) — SHIPPED 2026-04-30</summary>
@@ -16,35 +26,6 @@
 - [x] Phase 4: Smart Rules & Polish — completed 2026-04-30
 
 </details>
-
-### 🚧 v1.1 Real Preview, Polish & Unsubscribe
-
-## Phase 5: Real Email Preview
-**Goal:** Replace hardcoded mock data in PreviewModal with live Gmail fetches.
-**Requirements:** PREV-01, PREV-02, PREV-03
-**Success Criteria:**
-- [ ] Preview Modal shows real sender name and subject for each cleanup type
-- [ ] Each email row includes a short snippet (first 120 chars of body)
-- [ ] Emails shown are specific to the action type (newsletters query, promos query, etc.)
-- [ ] Loading skeleton shown while fetching; empty state when no emails found
-
-## Phase 6: Unsubscribe Link Detection
-**Goal:** Detect and execute real unsubscribes from List-Unsubscribe headers.
-**Requirements:** UNSUB-01, UNSUB-02, UNSUB-03
-**Success Criteria:**
-- [ ] Preview Modal badges show "Unsubscribe available" for emails with List-Unsubscribe header
-- [ ] Clicking "Unsubscribe" fires the appropriate mailto: or HTTP GET request
-- [ ] Newsletters cleanup action offers "Archive only" vs "Unsubscribe + Archive" choice
-- [ ] Unsubscribe attempts are logged (success/fail) and shown to user
-
-## Phase 7: Polish & Resilience
-**Goal:** Harden the app against API failures and rate limits.
-**Requirements:** POL-01, POL-02, POL-03
-**Success Criteria:**
-- [ ] 429 errors from Gmail API trigger exponential backoff and retry (max 3 attempts)
-- [ ] SuggestionsSection shows error card with "Try again" button on analysis failure
-- [ ] Individual card count failures show "—" badge instead of crashing the dashboard
-- [ ] No unhandled promise rejections visible in browser console during normal usage
 
 ## Progress
 
@@ -58,13 +39,3 @@
 | 6. Unsubscribe Link Detection | v1.1 | ✅ Complete | 2026-04-30 |
 | 7. Polish & Resilience | v1.1 | ✅ Complete | 2026-04-30 |
 | 8. Hardening & Documentation Integrity | v1.1 | ✅ Complete | 2026-05-01 |
-
-## Phase 8: Hardening & Documentation Integrity
-**Goal:** Resolve wiring bugs in suggestions, extend Gmail API resilience to bulk actions, and backfill verification artifacts.
-**Requirements:** POL-01, POL-02, Documentation
-**Success Criteria:**
-- [x] `getSuggestions` throws on failure (allowing client to show error state)
-- [x] `withRetry` applied to all Gmail procedures in `inbox.ts`
-- [x] Phase 5 VERIFICATION.md exists and covers PREV-01, 02, 03
-- [x] Phase 6 VERIFICATION.md has all boxes checked and verified
-- [x] No regression in core E2E flows

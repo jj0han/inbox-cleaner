@@ -1,5 +1,33 @@
 # Milestones
 
+## v1.1 Real Preview, Polish & Unsubscribe (Shipped: 2026-04-30)
+
+**Delivered:** Production-ready Gmail dashboard with live email previews, automated unsubscribe execution, and hardened API resilience.
+
+**Phases completed:** 5-8 (7 plans total)
+
+**Key accomplishments:**
+- **Live Email Previews** — Replaced mock data with real sender/subject/snippet fetches from Gmail API.
+- **Automated Unsubscribe** — Implemented header detection and background execution for mailto: and HTTP links.
+- **Gmail API Resilience** — Implemented `withRetry` with exponential backoff for all Gmail API call sites.
+- **Error Surfacing** — Added proper tRPC error handling to show retry states in the Suggestions section.
+- **Hardened Cleanup** — Applied retry protection to bulk archive and filter creation actions.
+
+**Stats:**
+- 41 files modified
+- 2,549 lines of code added/changed
+- 4 phases, 7 plans, 20+ tasks
+- 9 hours from v1.0 to v1.1
+
+**Git range:** `75e25bc` → `edecdd6`
+
+**What's next:** v1.2 Analytics & User Feedback
+
+---
+
+*Archive: `.planning/milestones/v1.1-ROADMAP.md`*
+
+
 ## v1.0 MVP — Inbox Cleaner
 
 **Shipped:** 2026-04-30  

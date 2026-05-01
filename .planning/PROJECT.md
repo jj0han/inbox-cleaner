@@ -10,7 +10,7 @@ Provide immediate relief by cleaning thousands of useless emails with a single c
 
 ## Requirements
 
-### Validated (v1.0)
+### Validated
 
 - ✓ Gmail API integration (OAuth) — v1.0
 - ✓ Dashboard Hero showing immediate impact ("You can clean X emails now") — v1.0
@@ -21,21 +21,14 @@ Provide immediate relief by cleaning thousands of useless emails with a single c
 - ✓ "One-click intelligent cleanup" button — v1.0
 - ✓ AI-lite suggested rules ("You never open X → auto-archive?") — v1.0
 - ✓ Live email count badges on action cards — v1.0
+- ✓ Real Gmail data in Preview Modal (sender, subject, snippet) — v1.1
+- ✓ Unsubscribe link detection & background execution — v1.1
+- ✓ Gmail API resilience (exponential backoff) — v1.1
+- ✓ Dashboard error surfacing for failed suggestions — v1.1
 
-## Current Milestone: v1.1 — Real Preview, Polish & Unsubscribe
+### Active (v1.2 Prep)
 
-**Goal:** Make the app production-ready with live email previews, real unsubscribe execution, and API resilience.
-
-**Target features:**
-- Real Gmail data in Preview Modal (PREV-01–03)
-- Unsubscribe link detection & execution (UNSUB-01–03)
-- Rate-limit backoff, error boundaries, graceful degradation (POL-01–03)
-
-### Active (v1.1)
-
-- [ ] **PREV-01–03**: Real email preview (sender, subject, snippet) in PreviewModal per action type
-- [ ] **UNSUB-01–03**: Unsubscribe link detection + one-click unsubscribe from preview
-- [ ] **POL-01–03**: Rate-limit backoff, SuggestionsSection error state, card count degradation
+- [ ] Define requirements for v1.2
 
 ### Out of Scope
 
@@ -45,49 +38,32 @@ Provide immediate relief by cleaning thousands of useless emails with a single c
 
 ## Context
 
-**v1.0 shipped 2026-04-30.** Built in 2 days, 45 commits, 4 phases.
+**v1.1 shipped 2026-04-30.** Hardened version with live previews and unsubscribe support. 8.4k LOC total.
+**v1.0 shipped 2026-04-30.** Initial MVP with bulk archive and AI suggestions.
 
 Tech stack: Next.js 15, tRPC, Prisma 7 (SQLite), Gmail API v1, NextAuth.js, Shadcn/ui, Tailwind CSS.
 
-The app works end-to-end: Google login → inbox analysis → 4 bulk cleanup actions → undo → AI suggestions → Gmail filter creation. Core user flow is complete and verified.
-
-Known limitations: preview modal uses mock data; suggestion engine is pattern-based (frequency), not ML. Both are intentional for v1 speed.
+The app is now production-ready.
 
 ## Constraints
 
-- **Design**: Clean, Notion-like aesthetic with large cards and ample white space — reduces decision fatigue.
-- **Trust**: Must provide clear previews and a reliable Undo feature — essential for actions that affect user data.
-- **Simplicity**: Zero setup required from the user — the app must do the heavy lifting.
-- **API**: Gmail API rate limits apply; batch calls used where possible to stay within quota.
+- **Design**: Clean, Notion-like aesthetic with large cards and ample white space.
+- **Trust**: Reliable Undo feature and clear previews before data modification.
+- **Simplicity**: Zero setup required from the user.
+- **API Resilience**: Exponential backoff (withRetry) applied to all Gmail API calls.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Start with Web App | Easiest to build and access from anywhere | ✓ Good |
-| Focus only on Gmail first | Validate concept before handling multiple APIs | ✓ Good |
 | Next.js + tRPC | Type-safe full-stack, zero API boilerplate | ✓ Good — high velocity |
 | Prisma 7 + SQLite | Zero-config local DB for undo log | ✓ Good — no infra needed |
-| Gmail batchModify | Single API call for bulk archive/restore | ✓ Good — fast and reliable |
-| gmail.settings.basic scope | Required for Gmail filter CRUD | ✓ Good — users need re-auth |
-| resultSizeEstimate for counts | Avoids expensive full list pagination | ✓ Good — performant approximation |
+| resultSizeEstimate | Avoids expensive full list pagination for counts | ✓ Good — performant |
 | 30s undo window | Enough time to reconsider, not annoying | ✓ Good — verified in UAT |
-| Inline suggestion engine | Pattern analysis without ML dependency | ✓ Good for v1 speed |
-
-## Evolution
-
-**After each phase transition** (via `/gsd-transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd-complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+| withRetry utility | Essential for handling Gmail 429 rate limits | ✓ Good — resilience |
+| mailto: server-send | Avoids browser "mailto:" popup friction | ✓ Good — seamless UX |
+| tRPC Error Surfacing | Allow client to show "Try again" state | ✓ Good — user feedback |
 
 ---
-*Last updated: 2026-04-30 — v1.1 milestone started*
+*Last updated: 2026-05-01 — v1.1 milestone complete*
