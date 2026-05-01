@@ -30,4 +30,4 @@
 ## Traceability
 - **PREV-01, PREV-02, PREV-03** → Phase 5
 - **UNSUB-01, UNSUB-02, UNSUB-03** → Phase 6
-- **POL-01, POL-02, POL-03** → Phase 7
+- **POL-01, POL-02, POL-03** → Phase 7 & 8
